@@ -126,26 +126,31 @@ public:
     {
         float velocity = (float)(cameraSpeedFactor * deltaTime);
         switch (direction) {
-        case ECameraMovementType::FORWARD:
-            position += forward * velocity;
-            break;
         case ECameraMovementType::BACKWARD:
-            position -= forward * velocity;
+            position += glm::vec3(0.0f, 0.0f, 1.0f) * velocity;
+            break;
+        case ECameraMovementType::FORWARD:
+            position -= glm::vec3(0.0f, 0.0f, 1.0f) * velocity;
             break;
         case ECameraMovementType::LEFT:
-            position -= right * velocity;
+            position -= glm::vec3(1.0f, 0.0f, 0.0f) * velocity;
             break;
         case ECameraMovementType::RIGHT:
-            position += right * velocity;
+            position += glm::vec3(1.0f, 0.0f, 0.0f) * velocity;
             break;
         case ECameraMovementType::UP:
-            position += up * velocity;
+            position += glm::vec3(0.0f, 1.0f, 0.0f) * velocity;
             break;
         case ECameraMovementType::DOWN:
-            position -= up * velocity;
+            position -= glm::vec3(0.0f, 1.0f, 0.0f) * velocity;
+            if (position.y < 0)
+            {
+                position.y = 0;
+            }
             break;
         }
     }
+    
 
     void MouseControl(float xPos, float yPos)
     {
@@ -609,6 +614,7 @@ void renderScene(const Shader& shader)
 
 }
 
+
 unsigned int planeVAO = 0;
 void renderFloor()
 {
@@ -740,6 +746,7 @@ void processInput(GLFWwindow* window)
         pCamera->ProcessKeyboard(UP, (float)deltaTime);
     if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
         pCamera->ProcessKeyboard(DOWN, (float)deltaTime);
+
     if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
         isLightRotating = true;
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
