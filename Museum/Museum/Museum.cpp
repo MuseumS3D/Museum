@@ -9,7 +9,7 @@
 #include <GL/glew.h>
 
 #define GLM_FORCE_CTOR_INIT 
-#include <GLM.hpp>a
+#include <GLM.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
 
@@ -430,10 +430,13 @@ int main(int argc, char** argv)
     std::string strFullExeFileName = argv[0];
     std::string strExePath;
     const size_t last_slash_idx = strFullExeFileName.rfind('\\');
-    if (std::string::npos != last_slash_idx) {
-        strExePath = strFullExeFileName.substr(0, last_slash_idx);
+    size_t last_slash_idx1 = strFullExeFileName.find_last_of("\\");
+    size_t last_slash_idx2 = strFullExeFileName.find_last_of("\\", last_slash_idx1 - 1);
+    size_t last_slash_idx3 = strFullExeFileName.find_last_of("\\", last_slash_idx2 - 1);
+    if (std::string::npos != last_slash_idx3) {
+        strExePath = strFullExeFileName.substr(0, last_slash_idx3);
     }
-
+    std::cout << strExePath<<"\n";
     // glfw: initialize and configure
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -472,7 +475,7 @@ int main(int argc, char** argv)
 
     // load textures
     // -------------
-    unsigned int floorTexture = CreateTexture(strExePath + "\\ColoredFloor.png");
+    unsigned int floorTexture = CreateTexture(strExePath + "\\Museum\\ColoredFloor.png");
 
     // configure depth map FBO
     // -----------------------
