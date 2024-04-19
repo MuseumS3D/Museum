@@ -26,9 +26,11 @@
 #pragma comment (lib, "glew32.lib")
 #pragma comment (lib, "OpenGL32.lib")
 
+
+
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1440;
+const unsigned int SCR_HEIGHT = 1440;
 
 enum ECameraMovementType
 {
@@ -423,7 +425,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 
 void renderScene(const Shader& shader);
-void renderParallelepipedRightFromDoor();
+void renderParallelepipedFromDoor();
 void renderParallelepipedPerpendiculuarFromDoor();
 void renderParallelepipedTopDoor();
 void renderFloor();
@@ -434,6 +436,8 @@ double lastFrame = 0.0f;
 
 int main(int argc, char** argv)
 {
+
+
     std::string strFullExeFileName = argv[0];
     std::string strExePath;
     const size_t last_slash_idx = strFullExeFileName.rfind('\\');
@@ -598,6 +602,8 @@ int main(int argc, char** argv)
         glfwPollEvents();
     }
 
+
+
     // optional: de-allocate all resources once they've outlived their purpose:
     delete pCamera;
 
@@ -619,7 +625,7 @@ void renderScene(const Shader& shader)
     model = glm::translate(model, glm::vec3(0.0f, 4.3f, 0.0));
     model = glm::scale(model, glm::vec3(5.2f));
     shader.SetMat4("model", model);
-    renderParallelepipedRightFromDoor();
+    renderParallelepipedFromDoor();
 
 
     // cube
@@ -634,11 +640,11 @@ void renderScene(const Shader& shader)
     model = glm::translate(model, glm::vec3(-16.1f, 4.3f, 0.0));
     model = glm::scale(model, glm::vec3(5.2f));
     shader.SetMat4("model", model);
-    renderParallelepipedRightFromDoor();
+    renderParallelepipedFromDoor();
 
     // cube perpendicular other door
     model = glm::mat4();
-    model = glm::translate(model, glm::vec3(10.3f, 4.3f, 0.0));
+    model = glm::translate(model, glm::vec3(10.4f, 4.3f, 0.0));
     model = glm::scale(model, glm::vec3(5.2f));
     shader.SetMat4("model", model);
     renderParallelepipedPerpendiculuarFromDoor();
@@ -688,7 +694,7 @@ void renderFloor()
 // -------------------------------------------------
 unsigned int cubeVAO = 0;
 unsigned int cubeVBO = 0;
-void renderParallelepipedRightFromDoor()
+void renderParallelepipedFromDoor()
 {
     // initialize (if necessary)
     if (cubeVAO == 0)
@@ -779,40 +785,40 @@ void renderParallelepipedPerpendiculuarFromDoor()
             -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
             -1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, // top-left
             // front face
-            -1.0f, -1.0f, 1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
-            1.0f-skew, -1.0f, 1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, // bottom-right
-            1.0f-skew,  1.0f, 1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
-            1.0f-skew,  1.0f, 1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
-            -1.0f,  1.0f, 1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // top-left
-            -1.0f, -1.0f, 1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
+            -1.0f, -1.0f, 1.0f + skew,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
+            1.0f-skew, -1.0f, 1.0f + skew,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, // bottom-right
+            1.0f-skew,  1.0f, 1.0f + skew,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+            1.0f-skew,  1.0f, 1.0f + skew,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+            -1.0f,  1.0f, 1.0f + skew,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // top-left
+            -1.0f, -1.0f, 1.0f + skew,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
             // left face
-            -1.0f,  1.0f, 1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+            -1.0f,  1.0f, 1.0f + skew, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
             -1.0f,  1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-left
             -1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
             -1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
-            -1.0f, -1.0f, 1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
-            -1.0f,  1.0f, 1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+            -1.0f, -1.0f, 1.0f + skew, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+            -1.0f,  1.0f, 1.0f + skew, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
             // right face
-            1.0f-skew,  1.0f, 1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+            1.0f-skew,  1.0f, 1.0f + skew,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
             1.0f-skew, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
             1.0f-skew,  1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-right         
             1.0f-skew, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
-            1.0f-skew,  1.0f, 1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
-            1.0f-skew, -1.0f, 1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left     
+            1.0f-skew,  1.0f, 1.0f + skew,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+            1.0f-skew, -1.0f, 1.0f + skew,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left     
             // bottom face
-            -1.0f-skew, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+            -1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
             1.0f-skew, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, // top-left
-            1.0f-skew, -1.0f, 1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
-            1.0f-skew, -1.0f, 1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
-            -1.0f-skew, -1.0f, 1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // bottom-right
-            -1.0f-skew, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+            1.0f-skew, -1.0f, 1.0f + skew,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
+            1.0f-skew, -1.0f, 1.0f + skew,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
+            -1.0f, -1.0f, 1.0f + skew,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+            -1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
             // top face
             -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
-            1.0f-skew,  1.0f , 1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+            1.0f-skew,  1.0f , 1.0f + skew,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
             1.0f-skew,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, // top-right     
-            1.0f-skew,  1.0f, 1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+            1.0f-skew,  1.0f, 1.0f + skew,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
             -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
-            -1.0f,  1.0f, 1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left        
+            -1.0f,  1.0f, 1.0f + skew,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left        
         };
 
         glGenVertexArrays(1, &cubeVAO3);
@@ -966,3 +972,6 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yOffset)
 {
     pCamera->ProcessMouseScroll((float)yOffset);
 }
+
+
+
