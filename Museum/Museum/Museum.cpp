@@ -499,12 +499,12 @@ int main(int argc, char** argv)
     // -------------
     unsigned int floorTexture = CreateTexture(strExePath + "\\Museum\\ColoredFloor.png");
 
-    unsigned int giraffeTexture = CreateTexture(strExePath + "\\Museum\\giraffe.jpg");
+    unsigned int giraffeTexture = CreateTexture(strExePath + "\\Museum\\Giraffe1\\giraffe.jpg");
 
    // std::string strExePath; // Asigur?-te c? aceast? variabil? este ini?ializat? corect în codul t?u
     // Restul codului pentru ini?ializarea lui strExePath ...
 
-    std::string imagePath = strExePath + "\\Museum\\giraffe.jpg";
+    std::string imagePath = strExePath + "\\Museum\\Giraffe1\\giraffe.jpg";
 
     // Verific? dac? directorul "Museum" exist?
     if (fs::exists(strExePath + "\\Museum")) {
@@ -1144,9 +1144,9 @@ void renderGiraffe()
 
 
 
-        Loader.LoadFile("..\\Museum\\giraffe.obj");
+        Loader.LoadFile("..\\Museum\\Giraffe1\\giraffe.obj");
 
-        std::string filePath = "..\\Museum\\giraffe.obj";
+        std::string filePath = "..\\Museum\\Giraffe1\\giraffe.obj";
 
         if (fs::exists(filePath)) {
             std::cout << "Fi?ierul giraffe.obj exist?.\n";
@@ -1220,3 +1220,6 @@ void renderGiraffe()
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glBindVertexArray(0);
 }
+
+
+
