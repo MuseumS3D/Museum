@@ -18,15 +18,19 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <filesystem>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
-
+#include "OBJ_Loader.h"
 #pragma comment (lib, "glfw3dll.lib")
 #pragma comment (lib, "glew32.lib")
 #pragma comment (lib, "OpenGL32.lib")
 
-
+// settings
+//const unsigned int SCR_WIDTH = 1920;
+//const unsigned int SCR_HEIGHT = 1080;
+objl::Loader Loader;
 
 
 // settings
@@ -432,9 +436,14 @@ void renderParallelepipedTopDoor();
 void renderFloor();
 void renderCeiling();
 
+void renderGiraffe(const Shader& shader);
+void renderGiraffe();
+
 // timing
 double deltaTime = 0.0f;	// time between current frame and last frame
 double lastFrame = 0.0f;
+
+namespace fs = std::filesystem;
 
 int main(int argc, char** argv)
 {
@@ -489,6 +498,28 @@ int main(int argc, char** argv)
     // load textures
     // -------------
     unsigned int floorTexture = CreateTexture(strExePath + "\\Museum\\ColoredFloor.png");
+
+    unsigned int giraffeTexture = CreateTexture(strExePath + "\\Museum\\giraffe.jpg");
+
+   // std::string strExePath; // Asigur?-te c? aceast? variabil? este ini?ializat? corect în codul t?u
+    // Restul codului pentru ini?ializarea lui strExePath ...
+
+    std::string imagePath = strExePath + "\\Museum\\giraffe.jpg";
+
+    // Verific? dac? directorul "Museum" exist?
+    if (fs::exists(strExePath + "\\Museum")) {
+        // Verific? dac? fi?ierul "giraffe.jpg" exist? în interiorul directorului "Museum"
+        if (fs::exists(imagePath)) {
+            std::cout << "Calea catre imagine este corecta.\n";
+        }
+        else {
+            std::cout << "Fi?ierul 'giraffe.jpg' nu exist? în directorul 'Museum'.\n";
+        }
+    }
+    else {
+        std::cout << "Directorul 'Museum' nu exist? în calea specificat?.\n";
+    }
+
 
     // configure depth map FBO
     // -----------------------
@@ -598,6 +629,24 @@ int main(int argc, char** argv)
         glBindTexture(GL_TEXTURE_2D, depthMap);
         glDisable(GL_CULL_FACE);
         renderScene(shadowMappingShader);
+
+        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, giraffeTexture);
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_FRONT);
+        renderGiraffe(shadowMappingDepthShader);
+        glCullFace(GL_BACK);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, giraffeTexture);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, depthMap);
+        glDisable(GL_CULL_FACE);
+        renderGiraffe(shadowMappingShader);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         glfwSwapBuffers(window);
@@ -1062,5 +1111,112 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yOffset)
     pCamera->ProcessMouseScroll((float)yOffset);
 }
 
+void renderGiraffe(const Shader& shader)
+{
+    //giraffe
+
+    glm::mat4 model;
+    model = glm::mat4();
+    model = glm::translate(model, glm::vec3(-5.5f, 10.0f, -10.4f));
+    model = glm::scale(model, glm::vec3(0.1f));
+    model = glm::rotate(model, glm::radians(50.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    shader.SetMat4("model", model);
+    renderGiraffe();
+}
+
+float vertices[82000];
+unsigned int indices[72000];
+unsigned int indicesGr[72000];
+objl::Vertex verG[82000];
+unsigned int indicesG[72000];
 
 
+GLuint giraffeVAO, giraffeVBO, giraffeEBO;
+
+void renderGiraffe()
+{
+    // initialize (if necessary)
+    if (giraffeVAO == 0)
+    {
+
+        std::vector<float> verticess;
+        std::vector<float> indicess;
+
+
+
+        Loader.LoadFile("..\\Museum\\giraffe.obj");
+
+        std::string filePath = "..\\Museum\\giraffe.obj";
+
+        if (fs::exists(filePath)) {
+            std::cout << "Fi?ierul giraffe.obj exist?.\n";
+        }
+        else {
+            std::cerr << "Fi?ierul giraffe.obj nu exist?.\n";
+        }
+
+        objl::Mesh curMesh = Loader.LoadedMeshes[0];
+        int size = curMesh.Vertices.size();
+        objl::Vertex v;
+        for (int j = 0; j < curMesh.Vertices.size(); j++)
+        {
+            v.Position.X = (float)curMesh.Vertices[j].Position.X;
+            v.Position.Y = (float)curMesh.Vertices[j].Position.Y;
+            v.Position.Z = (float)curMesh.Vertices[j].Position.Z;
+            v.Normal.X = (float)curMesh.Vertices[j].Normal.X;
+            v.Normal.Y = (float)curMesh.Vertices[j].Normal.Y;
+            v.Normal.Z = (float)curMesh.Vertices[j].Normal.Z;
+            v.TextureCoordinate.X = (float)curMesh.Vertices[j].TextureCoordinate.X;
+            v.TextureCoordinate.Y = (float)curMesh.Vertices[j].TextureCoordinate.Y;
+
+
+            verG[j] = v;
+        }
+        for (int j = 0; j < verticess.size(); j++)
+        {
+            vertices[j] = verticess.at(j);
+        }
+
+        for (int j = 0; j < curMesh.Indices.size(); j++)
+        {
+
+            indicess.push_back((float)curMesh.Indices[j]);
+
+        }
+        for (int j = 0; j < curMesh.Indices.size(); j++)
+        {
+            indicesG[j] = indicess.at(j);
+        }
+
+        glGenVertexArrays(1, &giraffeVAO);
+        glGenBuffers(1, &giraffeVBO);
+        glGenBuffers(1, &giraffeEBO);
+        // fill buffer
+        glBindBuffer(GL_ARRAY_BUFFER, giraffeVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(verG), verG, GL_DYNAMIC_DRAW);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, giraffeEBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicesG), &indicesG, GL_DYNAMIC_DRAW);
+        // link vertex attributes
+        glBindVertexArray(giraffeVAO);
+        glEnableVertexAttribArray(0);
+
+
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+    }
+    // render Cube
+    glBindVertexArray(giraffeVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, giraffeVBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, giraffeEBO);
+    int indexArraySize;
+    glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &indexArraySize);
+    glDrawElements(GL_TRIANGLES, indexArraySize / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glBindVertexArray(0);
+}
