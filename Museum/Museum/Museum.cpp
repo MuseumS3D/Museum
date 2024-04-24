@@ -528,7 +528,14 @@ int main(int argc, char** argv)
     
     // configure depth map FBO
     // -----------------------
-    const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+    //const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+
+    //this need to be the same as :
+    // settings
+   // const unsigned int SCR_WIDTH = 1440;
+    //const unsigned int SCR_HEIGHT = 1440;
+    //this is pov of the camera:
+    const unsigned int SHADOW_WIDTH = 1440, SHADOW_HEIGHT = 1440;
     unsigned int depthMapFBO;
     glGenFramebuffers(1, &depthMapFBO);
     // create depth texture
@@ -1122,7 +1129,7 @@ void renderGiraffe(const Shader& shader)
 
     glm::mat4 model;
     model = glm::mat4();
-    model = glm::translate(model, glm::vec3(-5.5f, 8.4f, -10.4f));
+    model = glm::translate(model, glm::vec3(-3.5f, 4.1f, -0.2f));
     model = glm::scale(model, glm::vec3(0.1f));
     model = glm::rotate(model, glm::radians(50.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     shader.SetMat4("model", model);
@@ -1163,7 +1170,7 @@ void renderGiraffe()
         objl::Mesh curMesh = Loader.LoadedMeshes[0];
         int size = curMesh.Vertices.size();
         objl::Vertex v;
-        const float scaleFactor = 0.75f; // factorul de scalare
+        const float scaleFactor = 0.5f; // factorul de scalare
         for (int j = 0; j < curMesh.Vertices.size(); j++)
         {
             v.Position.X = (float)curMesh.Vertices[j].Position.X*scaleFactor;
