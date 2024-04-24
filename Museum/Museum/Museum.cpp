@@ -429,13 +429,13 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 
-void renderScene(const Shader& shader);
+void renderWall(const Shader& shader);
 void renderParallelepipedFromDoor();
 void renderParallelepipedPerpendiculuarFromDoor();
 void renderParallelepipedTopDoor();
+void renderFloor1(const Shader& shader);
 void renderFloor();
 void renderCeiling();
-void renderParallelepipedParalelFirstDoor();
 
 void renderGiraffe(const Shader& shader);
 void renderGiraffe();
@@ -502,16 +502,18 @@ int main(int argc, char** argv)
 
 	// load textures
 	// -------------
-	unsigned int floorTexture = CreateTexture(strExePath + "\\Museum\\ColoredFloor.png");
+	unsigned int floorTexture = CreateTexture(strExePath + "\\Museum\\Walls\\floor1.jpg");
+	unsigned int wallTexture = CreateTexture(strExePath + "\\Museum\\Walls\\wall.jpg");
 
-	unsigned int giraffeTexture = CreateTexture(strExePath + "\\Museum\\cheetah.png");
-	unsigned int cheetahTexture = CreateTexture(strExePath + "\\Museum\\giraffe.jpg");
+	unsigned int giraffeTexture = CreateTexture(strExePath + "\\Museum\\Animals\\Giraffe\\giraffe.jpg");
+	unsigned int cheetahTexture = CreateTexture(strExePath + "\\Museum\\Animals\\Cheetah\\cheetah.png");
 
 
 	// std::string strExePath; // Asigur?-te c? aceast? variabil? este ini?ializat? corect în codul t?u
 	 // Restul codului pentru ini?ializarea lui strExePath ...
 
-	std::string imagePath = strExePath + "\\Museum\\cheetah.png";
+	//std::string imagePath = strExePath + "\\Museum\\Animals\\Giraffe\\giraffe.jpg";
+	std::string imagePath = strExePath + "\\Museum\\Animals\\Cheetah\\cheetah.png";
 
 	// Verific? dac? directorul "Museum" exist?
 	if (fs::exists(strExePath + "\\Museum")) {
@@ -619,10 +621,10 @@ int main(int argc, char** argv)
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, floorTexture);
+		glBindTexture(GL_TEXTURE_2D, wallTexture);
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_FRONT);
-		renderScene(shadowMappingDepthShader);
+		renderWall(shadowMappingDepthShader);
 		glCullFace(GL_BACK);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -642,15 +644,38 @@ int main(int argc, char** argv)
 		shadowMappingShader.SetVec3("viewPos", pCamera->GetPosition());
 		shadowMappingShader.SetVec3("lightPos", lightPos);
 		shadowMappingShader.SetMat4("lightSpaceMatrix", lightSpaceMatrix);
+
+
+		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, floorTexture);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
+		renderFloor1(shadowMappingDepthShader);
+		glCullFace(GL_BACK);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, floorTexture);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 		glDisable(GL_CULL_FACE);
-		renderScene(shadowMappingShader);
+		renderFloor1(shadowMappingShader);
 
 
-	/*	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, wallTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderWall(shadowMappingShader);
+
+
+		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glActiveTexture(GL_TEXTURE0);
@@ -666,7 +691,7 @@ int main(int argc, char** argv)
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 		glDisable(GL_CULL_FACE);
-		renderGiraffe(shadowMappingShader);*/
+		renderGiraffe(shadowMappingShader);
 
 		/*glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
@@ -677,7 +702,7 @@ int main(int argc, char** argv)
 		glCullFace(GL_FRONT);
 		renderGiraffe(shadowMappingDepthShader);
 		glCullFace(GL_BACK);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);	
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
 		glActiveTexture(GL_TEXTURE0);
@@ -719,63 +744,62 @@ int main(int argc, char** argv)
 	glfwTerminate();
 	return 0;
 }
+void renderFloor1(const Shader& shader)
+{
+	// floor
+	glm::mat4 model;
+	shader.SetMat4("model", model);
+	renderFloor();
+}
+
 
 // renders the 3D scene
 // --------------------
-void renderScene(const Shader& shader)
+void renderWall(const Shader& shader)
 {
-	// floor
 	glm::mat4 model, model1;
-	shader.SetMat4("model", model);
-	renderFloor();
-
-	//ROOM 1
-
-	//right from door
+	// cube
 	model = glm::mat4();
-	model = glm::translate(model, glm::vec3(-8.0f, 4.9f, -25.5));
+	model = glm::translate(model, glm::vec3(0.0f, 4.3f, 0.0));
 	model = glm::scale(model, glm::vec3(5.2f));
 	shader.SetMat4("model", model);
 	renderParallelepipedFromDoor();
 
 
-	// top door
+	// cube
 	model1 = glm::mat4();
-	model1 = glm::translate(model1, glm::vec3(-18.4f, 9.6f, -25.5));
+	model1 = glm::translate(model1, glm::vec3(-10.4f, 9.0f, 0.0));
 	model1 = glm::scale(model1, glm::vec3(5.2f));
 	shader.SetMat4("model", model1);
 	renderParallelepipedTopDoor();
 
-	// left from door
+	// cube
 	model = glm::mat4();
-	model = glm::translate(model, glm::vec3(-24.1f, 4.9f,-25.5));
+	model = glm::translate(model, glm::vec3(-16.1f, 4.3f, 0.0));
 	model = glm::scale(model, glm::vec3(5.2f));
 	shader.SetMat4("model", model);
 	renderParallelepipedFromDoor();
 
-	// lateral wall
+	// cube perpendicular other door
 	model = glm::mat4();
-	model = glm::translate(model, glm::vec3(-24.8f, 4.9f, -44.5));
+	model = glm::translate(model, glm::vec3(10.4f, 4.3f, 0.0));
 	model = glm::scale(model, glm::vec3(5.2f));
 	shader.SetMat4("model", model);
 	renderParallelepipedPerpendiculuarFromDoor();
 
-	// ceiling
 	model = glm::mat4();
-	model = glm::translate(model, glm::vec3(-7.6f, 19.9f, -44.5));
+	model = glm::translate(model, glm::vec3(-17.1f, 4.3f, 0.0));
+	model = glm::scale(model, glm::vec3(5.2f));
+	shader.SetMat4("model", model);
+	renderParallelepipedPerpendiculuarFromDoor();
+
+	// cube perpendicular other door
+	model = glm::mat4();
+	model = glm::translate(model, glm::vec3(1.0f, 14.7f, 0.0));
 	model = glm::scale(model, glm::vec3(5.2f));
 	shader.SetMat4("model", model);
 	renderCeiling();
-
-	// lateral wall
-	model = glm::mat4();
-	model = glm::translate(model, glm::vec3(-15.6f, 4.9f, -44.5));
-	model = glm::scale(model, glm::vec3(5.2f));
-	shader.SetMat4("model", model);
-	renderParallelepipedParalelFirstDoor();
 }
-
-
 
 
 unsigned int planeVAO = 0;
@@ -783,15 +807,30 @@ void renderFloor()
 {
 	unsigned int planeVBO;
 
+	float scaleFactor = 5.0f;
+
 	if (planeVAO == 0) {
 		// set up vertex data (and buffer(s)) and configure vertex attributes
+		//float planeVertices[] = {
+		//	// positions          // normals          // texcoords
+		//	52.7f*scaleFactor, -0.5f, 50.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, // Top-right corner (shifted further right)
+		//	-22.3f*scaleFactor, -0.5f, 50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // Top-left corner (shifted further right)
+		//	-22.3f*scaleFactor, -0.5f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, // Bottom-left corner
+		//	52.7f*scaleFactor, -0.5f, -50.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f  // Bottom-right corner
+		//};
 		float planeVertices[] = {
-			// positions          // normals          // texcoords
-			60.0f, -0.5f, 100.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, // Top-right
-			-30.0f, -0.5f, 100.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // Top-left
-			-30.0f, -0.5f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, // Bottom-left
-			60.0f, -0.5f, -50.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f  // Bottom-right
+			// positions            // normals         // texcoords
+			25.0f * scaleFactor, -0.5f,  25.0f * scaleFactor,  0.0f, 1.0f, 0.0f,  25.0f,  0.0f,
+			-25.0f * scaleFactor, -0.5f,  25.0f * scaleFactor,  0.0f, 1.0f, 0.0f,   0.0f,  0.0f,
+			-25.0f * scaleFactor, -0.5f, -25.0f * scaleFactor,  0.0f, 1.0f, 0.0f,   0.0f, 25.0f,
+
+			25.0f * scaleFactor, -0.5f,  25.0f * scaleFactor,  0.0f, 1.0f, 0.0f,  25.0f,  0.0f,
+			-25.0f * scaleFactor, -0.5f, -25.0f * scaleFactor,  0.0f, 1.0f, 0.0f,  0.0f, 25.0f,
+			25.0f * scaleFactor, -0.5f, -25.0f * scaleFactor,  0.0f, 1.0f, 0.0f,  25.0f, 25.0f
 		};
+
+
+
 
 		// plane VAO
 		glGenVertexArrays(1, &planeVAO);
@@ -809,7 +848,7 @@ void renderFloor()
 	}
 
 	glBindVertexArray(planeVAO);
-	glDrawArrays(GL_TRIANGLE_FAN, 0, 4); // Change GL_TRIANGLES to GL_TRIANGLE_FAN
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
 
@@ -823,51 +862,50 @@ void renderParallelepipedFromDoor()
 	if (cubeVAO == 0)
 	{
 		float skew = 1.8f;
-		float height = 1.0f;
 
 		float vertices[] = {
 			// back face
 			-1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-			1.0f,  1.0f+height, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
+			1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
 			1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f, // bottom-right         
-			1.0f,  1.0f + height, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
+			1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
 			-1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-			-1.0f,  1.0f + height, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, // top-left
+			-1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, // top-left
 			// front face
 			-1.0f, -1.0f,  1.0f - skew,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
 			1.0f, -1.0f,  1.0f - skew,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, // bottom-right
-			1.0f,  1.0f + height,  1.0f - skew,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
-			1.0f,  1.0f + height,  1.0f - skew,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
-			-1.0f,  1.0f + height,  1.0f - skew,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // top-left
+			1.0f,  1.0f,  1.0f - skew,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+			1.0f,  1.0f,  1.0f - skew,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+			-1.0f,  1.0f,  1.0f - skew,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // top-left
 			-1.0f, -1.0f,  1.0f - skew,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
 			// left face
-			-1.0f,  1.0f + height,  1.0f - skew, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
-			-1.0f,  1.0f + height, -1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-left
+			-1.0f,  1.0f,  1.0f - skew, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+			-1.0f,  1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-left
 			-1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
 			-1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
 			-1.0f, -1.0f,  1.0f - skew, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
-			-1.0f,  1.0f + height,  1.0f - skew, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+			-1.0f,  1.0f,  1.0f - skew, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
 			// right face
-			1.0f,  1.0f + height,  1.0f - skew,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+			1.0f,  1.0f,  1.0f - skew,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
 			1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
-			1.0f,  1.0f + height, -1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-right         
+			1.0f,  1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-right         
 			1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
-			1.0f,  1.0f + height,  1.0f - skew,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+			1.0f,  1.0f,  1.0f - skew,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
 			1.0f, -1.0f,  1.0f - skew,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left     
 			// bottom face
-			-1.0f, -1.0f + height, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
-			1.0f, -1.0f + height, -1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, // top-left
+			-1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+			1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, // top-left
 			1.0f, -1.0f,  1.0f - skew,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
 			1.0f, -1.0f,  1.0f - skew,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
 			-1.0f, -1.0f,  1.0f - skew,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // bottom-right
-			-1.0f, -1.0f + height, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+			-1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
 			// top face
-			-1.0f,  1.0f + height, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
-			1.0f,  1.0f + height , 1.0f - skew,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
-			1.0f,  1.0f + height, -1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, // top-right     
-			1.0f,  1.0f + height,  1.0f - skew,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
-			-1.0f,  1.0f + height, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
-			-1.0f,  1.0f + height,  1.0f - skew,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left        
+			-1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
+			1.0f,  1.0f , 1.0f - skew,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+			1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, // top-right     
+			1.0f,  1.0f,  1.0f - skew,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+			-1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
+			-1.0f,  1.0f,  1.0f - skew,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left        
 		};
 		glGenVertexArrays(1, &cubeVAO);
 		glGenBuffers(1, &cubeVBO);
@@ -899,36 +937,35 @@ void renderParallelepipedPerpendiculuarFromDoor()
 	if (cubeVAO3 == 0)
 	{
 		float skew = 1.8f;
-		float height = 1.0f;
 
 		float vertices[] = {
 			// back face
 			-1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-			1.0f - skew,  1.0f + height, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
+			1.0f - skew,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
 			1.0f - skew, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f, // bottom-right         
-			1.0f - skew,  1.0f + height, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
+			1.0f - skew,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
 			-1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-			-1.0f,  1.0f + height, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, // top-left
+			-1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, // top-left
 			// front face
 			-1.0f, -1.0f, 1.0f + skew,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
 			1.0f - skew, -1.0f, 1.0f + skew,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, // bottom-right
-			1.0f - skew,  1.0f + height, 1.0f + skew,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
-			1.0f - skew,  1.0f + height, 1.0f + skew,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
-			-1.0f,  1.0f + height, 1.0f + skew,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // top-left
+			1.0f - skew,  1.0f, 1.0f + skew,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+			1.0f - skew,  1.0f, 1.0f + skew,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+			-1.0f,  1.0f, 1.0f + skew,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // top-left
 			-1.0f, -1.0f, 1.0f + skew,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
 			// left face
-			-1.0f,  1.0f + height, 1.0f + skew, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
-			-1.0f,  1.0f + height, -1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-left
+			-1.0f,  1.0f, 1.0f + skew, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+			-1.0f,  1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-left
 			-1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
 			-1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
 			-1.0f, -1.0f, 1.0f + skew, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
-			-1.0f,  1.0f + height, 1.0f + skew, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+			-1.0f,  1.0f, 1.0f + skew, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
 			// right face
-			1.0f - skew,  1.0f + height, 1.0f + skew,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+			1.0f - skew,  1.0f, 1.0f + skew,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
 			1.0f - skew, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
-			1.0f - skew,  1.0f + height, -1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-right         
+			1.0f - skew,  1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-right         
 			1.0f - skew, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
-			1.0f - skew,  1.0f + height, 1.0f + skew,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+			1.0f - skew,  1.0f, 1.0f + skew,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
 			1.0f - skew, -1.0f, 1.0f + skew,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left     
 			// bottom face
 			-1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
@@ -938,12 +975,12 @@ void renderParallelepipedPerpendiculuarFromDoor()
 			-1.0f, -1.0f, 1.0f + skew,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // bottom-right
 			-1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
 			// top face
-			-1.0f,  1.0f+height, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
-			1.0f - skew ,  1.0f + height , 1.0f + skew,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
-			1.0f - skew ,  1.0f + height, -1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, // top-right     
-			1.0f - skew,  1.0f + height, 1.0f + skew,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
-			-1.0f,  1.0f + height, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
-			-1.0f,  1.0f + height, 1.0f + skew,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left        
+			-1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
+			1.0f - skew,  1.0f , 1.0f + skew,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+			1.0f - skew,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, // top-right     
+			1.0f - skew,  1.0f, 1.0f + skew,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+			-1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
+			-1.0f,  1.0f, 1.0f + skew,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left        
 		};
 
 		glGenVertexArrays(1, &cubeVAO3);
@@ -978,51 +1015,50 @@ void renderParallelepipedTopDoor()
 	{
 		float skew = 1.8f;
 		float door_sizing = 0.9f;
-		float height = 1.0f;
 
 		float vertices[] = {
 			// back face
-			-1.0f + door_sizing, -1.0f + height, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-			1.0f,  1.0f - door_sizing + height, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
-			1.0f, -1.0f + height, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f, // bottom-right         
-			1.0f,  1.0f - door_sizing + height, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
-			-1.0f + door_sizing, -1.0f + height, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-			-1.0f + door_sizing,  1.0f - door_sizing + height, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, // top-left
+			-1.0f + door_sizing, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
+			1.0f,  1.0f - door_sizing, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
+			1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f, // bottom-right         
+			1.0f,  1.0f - door_sizing, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
+			-1.0f + door_sizing, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
+			-1.0f + door_sizing,  1.0f - door_sizing, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, // top-left
 			// front face
-			-1.0f + door_sizing, -1.0f + height,  1.0f - skew,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
-			1.0f, -1.0f + height,  1.0f - skew,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, // bottom-right
-			1.0f,  1.0f - door_sizing + height,  1.0f - skew,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
-			1.0f,  1.0f - door_sizing + height,  1.0f - skew,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
-			-1.0f + door_sizing,  1.0f - door_sizing + height,  1.0f - skew,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // top-left
-			-1.0f + door_sizing, -1.0f + height,  1.0f - skew,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
+			-1.0f + door_sizing, -1.0f,  1.0f - skew,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
+			1.0f, -1.0f,  1.0f - skew,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, // bottom-right
+			1.0f,  1.0f - door_sizing,  1.0f - skew,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+			1.0f,  1.0f - door_sizing,  1.0f - skew,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+			-1.0f + door_sizing,  1.0f - door_sizing,  1.0f - skew,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // top-left
+			-1.0f + door_sizing, -1.0f,  1.0f - skew,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
 			// left face
-			-1.0f + door_sizing,  1.0f - door_sizing + height,  1.0f - skew, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
-			-1.0f + door_sizing,  1.0f - door_sizing + height, -1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-left
-			-1.0f + door_sizing, -1.0f + height, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
-			-1.0f + door_sizing, -1.0f + height, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
-			-1.0f + door_sizing, -1.0f + height,  1.0f - skew, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
-			-1.0f + door_sizing,  1.0f - door_sizing + height,  1.0f - skew, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+			-1.0f + door_sizing,  1.0f - door_sizing,  1.0f - skew, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+			-1.0f + door_sizing,  1.0f - door_sizing, -1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-left
+			-1.0f + door_sizing, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
+			-1.0f + door_sizing, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
+			-1.0f + door_sizing, -1.0f,  1.0f - skew, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+			-1.0f + door_sizing,  1.0f - door_sizing,  1.0f - skew, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
 			// right face
-			1.0f,  1.0f - door_sizing + height,  1.0f - skew,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
-			1.0f, -1.0f + height, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
-			1.0f,  1.0f - door_sizing + height, -1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-right         
-			1.0f, -1.0f + height, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
-			1.0f,  1.0f - door_sizing + height,  1.0f - skew,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
-			1.0f, -1.0f + height,  1.0f - skew,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left     
+			1.0f,  1.0f - door_sizing,  1.0f - skew,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+			1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
+			1.0f,  1.0f - door_sizing, -1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-right         
+			1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
+			1.0f,  1.0f - door_sizing,  1.0f - skew,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+			1.0f, -1.0f,  1.0f - skew,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left     
 			// bottom face
-			-1.0f + door_sizing, -1.0f + height, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
-			1.0f, -1.0f + height , -1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, // top-left
-			1.0f, -1.0f + height,  1.0f - skew,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
-			1.0f, -1.0f + height,  1.0f - skew,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
-			-1.0f + door_sizing, -1.0f + height,  1.0f - skew,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // bottom-right
-			-1.0f + door_sizing, -1.0 + height, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+			-1.0f + door_sizing, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+			1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, // top-left
+			1.0f, -1.0f,  1.0f - skew,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
+			1.0f, -1.0f,  1.0f - skew,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
+			-1.0f + door_sizing, -1.0f,  1.0f - skew,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+			-1.0f + door_sizing, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
 			// top face
-			-1.0f + door_sizing,  1.0f - door_sizing + height, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
-			1.0f,  1.0f - door_sizing + height, 1.0f - skew,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
-			1.0f,  1.0f - door_sizing + height, -1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, // top-right     
-			1.0f,  1.0f - door_sizing + height,  1.0f - skew,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
-			-1.0f + door_sizing,  1.0f - door_sizing + height, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
-			-1.0f + door_sizing,  1.0f - door_sizing + height,  1.0f - skew,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left        
+			-1.0f + door_sizing,  1.0f - door_sizing, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
+			1.0f,  1.0f - door_sizing , 1.0f - skew,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+			1.0f,  1.0f - door_sizing, -1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, // top-right     
+			1.0f,  1.0f - door_sizing,  1.0f - skew,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+			-1.0f + door_sizing,  1.0f - door_sizing, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
+			-1.0f + door_sizing,  1.0f - door_sizing,  1.0f - skew,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left        
 		};
 		glGenVertexArrays(1, &cubeVAO2);
 		glGenBuffers(1, &cubeVBO2);
@@ -1128,83 +1164,6 @@ void renderCeiling()
 	glBindVertexArray(0);
 }
 
-unsigned int cubeVAO5 = 0;
-unsigned int cubeVBO5 = 0;
-void renderParallelepipedParalelFirstDoor()
-{
-	// initialize (if necessary)
-	if (cubeVAO5 == 0)
-	{
-		float skew = 1.8f;
-		float height = 1.0f;
-
-		float vertices[] = {
-			// back face
-			-1.0f - skew, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-			1.0f,  1.0f + height, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
-			1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f, // bottom-right         
-			1.0f,  1.0f + height, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
-			-1.0f - skew, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-			-1.0f - skew,  1.0f + height, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, // top-left
-			// front face
-			-1.0f - skew, -1.0f, 1.0f - skew,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
-			1.0f, -1.0f, 1.0f - skew,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, // bottom-right
-			1.0f,  1.0f + height, 1.0f - skew,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
-			1.0f,  1.0f + height, 1.0f - skew,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
-			-1.0f - skew,  1.0f + height, 1.0f - skew,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // top-left
-			-1.0f - skew, -1.0f, 1.0f - skew,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
-			// left face
-			-1.0f-skew,  1.0f + height, 1.0f - skew, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
-			-1.0f - skew,  1.0f + height, -1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-left
-			-1.0f - skew, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
-			-1.0f - skew, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
-			-1.0f - skew, -1.0f, 1.0f - skew, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
-			-1.0f - skew,  1.0f + height, 1.0f - skew, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
-			// right face
-			1.0f,  1.0f + height, 1.0f - skew,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
-			1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
-			1.0f,  1.0f + height, -1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-right         
-			1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
-			1.0f,  1.0f + height, 1.0f - skew,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
-			1.0f, -1.0f, 1.0f - skew,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left     
-			// bottom face
-			-1.0f - skew, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
-			1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, // top-left
-			1.0f, -1.0f, 1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
-			1.0f, -1.0f, 1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
-			-1.0f - skew, -1.0f, 1.0f - skew,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // bottom-right
-			-1.0f - skew, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
-			// top face
-			-1.0f - skew,  1.0f + height, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
-			1.0f ,  1.0f + height , 1.0f - skew,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
-			1.0f ,  1.0f + height, -1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, // top-right     
-			1.0f ,  1.0f + height, 1.0f - skew,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
-			-1.0f - skew,  1.0f + height, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
-			-1.0f - skew,  1.0f + height, 1.0f - skew,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left        
-		};
-
-		glGenVertexArrays(1, &cubeVAO5);
-		glGenBuffers(1, &cubeVBO5);
-		// fill buffer
-		glBindBuffer(GL_ARRAY_BUFFER, cubeVBO5);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-		// link vertex attributes
-		glBindVertexArray(cubeVAO5);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
-	}
-	// render Cube
-	glBindVertexArray(cubeVAO5);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-	glBindVertexArray(0);
-}
-
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 void processInput(GLFWwindow* window)
 {
@@ -1263,7 +1222,7 @@ void renderGiraffe(const Shader& shader)
 
 	glm::mat4 model;
 	model = glm::mat4();
-	model = glm::translate(model, glm::vec3(-33.5f, 9.0f, -13.4f));
+	model = glm::translate(model, glm::vec3(-2.5f, 4.2f, 0.5f));
 	model = glm::scale(model, glm::vec3(0.1f));
 	model = glm::rotate(model, glm::radians(50.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	shader.SetMat4("model", model);
@@ -1281,93 +1240,6 @@ GLuint giraffeVAO, giraffeVBO, giraffeEBO;
 
 void renderGiraffe()
 {
-	//// initialize (if necessary)
-	//if (giraffeVAO == 0)
-	//{
-
-	//    std::vector<float> verticess;
-	//    std::vector<float> indicess;
-
-
-
-	//    Loader.LoadFile("..\\Museum\\cheetah.obj");
-	//    //Loader.LoadFile("..\\Museum\\giraffe.obj");
-
-	//    std::string filePath = "..\\Museum\\cheetah.obj";
-	//    //std::string filePath = "..\\Museum\\cheetah.obj";
-
-	//    if (fs::exists(filePath)) {
-	//        std::cout << "Fisierul giraffe.obj exista.\n";
-	//    }
-	//    else {
-	//        std::cerr << "Fisierul giraffe.obj nu exista.\n";
-	//    }
-
-	//    objl::Mesh curMesh = Loader.LoadedMeshes[0];
-	//    int size = curMesh.Vertices.size();
-	//    objl::Vertex v;
-	//    const float scaleFactor = 1.0f; // factorul de scalare
-	//    for (int j = 0; j < curMesh.Vertices.size(); j++)
-	//    {
-	//        v.Position.X = (float)curMesh.Vertices[j].Position.X*scaleFactor;
-	//        v.Position.Y = (float)curMesh.Vertices[j].Position.Y*scaleFactor;
-	//        v.Position.Z = (float)curMesh.Vertices[j].Position.Z*scaleFactor;
-	//        v.Normal.X = (float)curMesh.Vertices[j].Normal.X;
-	//        v.Normal.Y = (float)curMesh.Vertices[j].Normal.Y;
-	//        v.Normal.Z = (float)curMesh.Vertices[j].Normal.Z;
-	//        v.TextureCoordinate.X = (float)curMesh.Vertices[j].TextureCoordinate.X;
-	//        v.TextureCoordinate.Y = (float)curMesh.Vertices[j].TextureCoordinate.Y;
-
-
-	//        verG[j] = v;
-	//    }
-	//    for (int j = 0; j < verticess.size(); j++)
-	//    {
-	//        vertices[j] = verticess.at(j);
-	//    }
-
-	//    for (int j = 0; j < curMesh.Indices.size(); j++)
-	//    {
-
-	//        indicess.push_back((float)curMesh.Indices[j]);
-
-	//    }
-	//    for (int j = 0; j < curMesh.Indices.size(); j++)
-	//    {
-	//        indicesG[j] = indicess.at(j);
-	//    }
-
-	//    glGenVertexArrays(1, &giraffeVAO);
-	//    glGenBuffers(1, &giraffeVBO);
-	//    glGenBuffers(1, &giraffeEBO);
-	//    // fill buffer
-	//    glBindBuffer(GL_ARRAY_BUFFER, giraffeVBO);
-	//    glBufferData(GL_ARRAY_BUFFER, sizeof(verG), verG, GL_DYNAMIC_DRAW);
-
-	//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, giraffeEBO);
-	//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicesG), &indicesG, GL_DYNAMIC_DRAW);
-	//    // link vertex attributes
-	//    glBindVertexArray(giraffeVAO);
-	//    glEnableVertexAttribArray(0);
-
-
-	//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-	//    glEnableVertexAttribArray(1);
-	//    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-	//    glEnableVertexAttribArray(2);
-	//    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-	//    glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//    glBindVertexArray(0);
-	//}
-	//// render Cube
-	//glBindVertexArray(giraffeVAO);
-	//glBindBuffer(GL_ARRAY_BUFFER, giraffeVBO);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, giraffeEBO);
-	//int indexArraySize;
-	//glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &indexArraySize);
-	//glDrawElements(GL_TRIANGLES, indexArraySize / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
-	//glDrawArrays(GL_TRIANGLES, 0, 36);
-	//glBindVertexArray(0);
 
 
 	// initialize (if necessary)
@@ -1379,9 +1251,9 @@ void renderGiraffe()
 
 
 
-		Loader.LoadFile("..\\Museum\\cheetah.obj");
+		Loader.LoadFile("..\\Museum\\Animals\\Giraffe\\giraffe.obj");
 
-		std::string filePath = "..\\Museum\\cheetah.obj";
+		std::string filePath = "..\\Museum\\Animals\\Giraffe\\giraffe.obj";
 
 		if (fs::exists(filePath)) {
 			std::cout << "Fisierul giraffe.obj exista.\n";
@@ -1394,11 +1266,12 @@ void renderGiraffe()
 		objl::Mesh curMesh = Loader.LoadedMeshes[0];
 		int size = curMesh.Vertices.size();
 		objl::Vertex v;
+		const float scaleFactor = 0.5f; // factorul de scalare
 		for (int j = 0; j < curMesh.Vertices.size(); j++)
 		{
-			v.Position.X = (float)curMesh.Vertices[j].Position.X;
-			v.Position.Y = (float)curMesh.Vertices[j].Position.Y;
-			v.Position.Z = (float)curMesh.Vertices[j].Position.Z;
+			v.Position.X = (float)curMesh.Vertices[j].Position.X * scaleFactor;
+			v.Position.Y = (float)curMesh.Vertices[j].Position.Y * scaleFactor;
+			v.Position.Z = (float)curMesh.Vertices[j].Position.Z * scaleFactor;
 			v.Normal.X = (float)curMesh.Vertices[j].Normal.X;
 			v.Normal.Y = (float)curMesh.Vertices[j].Normal.Y;
 			v.Normal.Z = (float)curMesh.Vertices[j].Normal.Z;
@@ -1471,11 +1344,15 @@ void renderCheetah(const Shader& shader)
 
 	glm::mat4 model;
 	model = glm::mat4();
-	model = glm::translate(model, glm::vec3(-47.5f, 2.9f, -13.4f));
+	model = glm::translate(model, glm::vec3(-14.5f, 1.1f, 0.5f));
 	model = glm::scale(model, glm::vec3(6.f));
 	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+	// Adaugarea rota?iei spre dreapta
+	float rotationAngle = 50.0f; // Rotire spre dreapta
+	model = glm::rotate(model, glm::radians(rotationAngle), glm::vec3(0.0f, 0.0f, 1.0f)); // Rotire spre dreapta pe axa OZ
 	shader.SetMat4("model", model);
 	renderCheetah();
 }
@@ -1493,11 +1370,11 @@ void renderCheetah()
 
 
 
-		Loader.LoadFile("..\\Museum\\giraffe.obj");
+		Loader.LoadFile("..\\Museum\\Animals\\Cheetah\\cheetah.obj");
 		objl::Mesh curMesh = Loader.LoadedMeshes[0];
 		int size = curMesh.Vertices.size();
 		objl::Vertex v;
-		const float scaleFactor = 0.01f; // factorul de scalare
+		const float scaleFactor = 0.5f; // factorul de scalare
 		for (int j = 0; j < curMesh.Vertices.size(); j++)
 		{
 			v.Position.X = (float)curMesh.Vertices[j].Position.X * scaleFactor;
