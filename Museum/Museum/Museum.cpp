@@ -521,6 +521,11 @@ int main(int argc, char** argv)
     }
 
 
+
+    //aici trebuie modificat pentru viziunea camerei
+    // 
+    // 
+    
     // configure depth map FBO
     // -----------------------
     const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
@@ -1117,7 +1122,7 @@ void renderGiraffe(const Shader& shader)
 
     glm::mat4 model;
     model = glm::mat4();
-    model = glm::translate(model, glm::vec3(-5.5f, 10.0f, -10.4f));
+    model = glm::translate(model, glm::vec3(-5.5f, 8.4f, -10.4f));
     model = glm::scale(model, glm::vec3(0.1f));
     model = glm::rotate(model, glm::radians(50.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     shader.SetMat4("model", model);
@@ -1158,11 +1163,12 @@ void renderGiraffe()
         objl::Mesh curMesh = Loader.LoadedMeshes[0];
         int size = curMesh.Vertices.size();
         objl::Vertex v;
+        const float scaleFactor = 0.75f; // factorul de scalare
         for (int j = 0; j < curMesh.Vertices.size(); j++)
         {
-            v.Position.X = (float)curMesh.Vertices[j].Position.X;
-            v.Position.Y = (float)curMesh.Vertices[j].Position.Y;
-            v.Position.Z = (float)curMesh.Vertices[j].Position.Z;
+            v.Position.X = (float)curMesh.Vertices[j].Position.X*scaleFactor;
+            v.Position.Y = (float)curMesh.Vertices[j].Position.Y*scaleFactor;
+            v.Position.Z = (float)curMesh.Vertices[j].Position.Z*scaleFactor;
             v.Normal.X = (float)curMesh.Vertices[j].Normal.X;
             v.Normal.Y = (float)curMesh.Vertices[j].Normal.Y;
             v.Normal.Z = (float)curMesh.Vertices[j].Normal.Z;
