@@ -28,7 +28,6 @@ x86/
 [Aa][Rr][Mm]64/
 bld/
 [Bb]in/
-[Oo]bj/
 [Ll]og/
 [Ll]ogs/
 
@@ -74,10 +73,7 @@ StyleCopReport.xml
 *_h.h
 *.ilk
 *.meta
-*.iobj
 *.pch
-*.pdb
-*.ipdb
 *.pgc
 *.pgd
 *.rsp
@@ -106,7 +102,6 @@ ipch/
 *.ncb
 *.opendb
 *.opensdf
-*.sdf
 *.cachefile
 *.VC.db
 *.VC.VC.opendb
