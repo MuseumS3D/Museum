@@ -131,35 +131,6 @@ public:
 
 	void ProcessKeyboard(ECameraMovementType direction, float deltaTime)
 	{
-		float velocity = (float)(cameraSpeedFactor * deltaTime);
-		switch (direction) {
-		case ECameraMovementType::BACKWARD:
-			position += glm::vec3(0.0f, 0.0f, 1.0f) * velocity;
-			break;
-		case ECameraMovementType::FORWARD:
-			position -= glm::vec3(0.0f, 0.0f, 1.0f) * velocity;
-			break;
-		case ECameraMovementType::LEFT:
-			position -= glm::vec3(1.0f, 0.0f, 0.0f) * velocity;
-			break;
-		case ECameraMovementType::RIGHT:
-			position += glm::vec3(1.0f, 0.0f, 0.0f) * velocity;
-			break;
-		case ECameraMovementType::UP:
-			position += glm::vec3(0.0f, 1.0f, 0.0f) * velocity;
-			break;
-		case ECameraMovementType::DOWN:
-			position -= glm::vec3(0.0f, 1.0f, 0.0f) * velocity;
-			if (position.y < 0)
-			{
-				position.y = 0;
-			}
-			break;
-		}
-	}
-
-	void ProcessKeyboard(ECameraMovementType direction, float deltaTime)
-	{
 		float velocity = cameraSpeedFactor * deltaTime;
 		glm::vec3 forwardDirection = glm::normalize(glm::vec3(forward.x, 0.0f, forward.z));
 		glm::vec3 rightDirection = glm::normalize(glm::cross(forwardDirection, worldUp));
