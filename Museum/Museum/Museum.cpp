@@ -158,6 +158,37 @@ public:
 		}
 	}
 
+	void ProcessKeyboard(ECameraMovementType direction, float deltaTime)
+	{
+		float velocity = cameraSpeedFactor * deltaTime;
+		glm::vec3 forwardDirection = glm::normalize(glm::vec3(forward.x, 0.0f, forward.z));
+		glm::vec3 rightDirection = glm::normalize(glm::cross(forwardDirection, worldUp));
+
+		switch (direction) {
+		case ECameraMovementType::BACKWARD:
+			position -= forwardDirection * velocity;
+			break;
+		case ECameraMovementType::FORWARD:
+			position += forwardDirection * velocity;
+			break;
+		case ECameraMovementType::LEFT:
+			position -= rightDirection * velocity;
+			break;
+		case ECameraMovementType::RIGHT:
+			position += rightDirection * velocity;
+			break;
+		case ECameraMovementType::UP:
+			position += worldUp * velocity;
+			break;
+		case ECameraMovementType::DOWN:
+			position -= worldUp * velocity;
+			if (position.y < 0)
+			{
+				position.y = 0;
+			}
+			break;
+		}
+	}
 
 	void MouseControl(float xPos, float yPos)
 	{
@@ -875,12 +906,12 @@ void renderWall(const Shader& shader)
 	shader.SetMat4("model", model);
 	renderParallelepipedPerpendiculuarFromDoor();
 
-	// top door room3
-	model1 = glm::mat4();
-	model1 = glm::translate(model1, glm::vec3(15.5f, 9.6f, -30.2));
-	model1 = glm::scale(model1, glm::vec3(5.2f));
-	shader.SetMat4("model", model1);
-	renderParallelepipedTopDoorRoom3();
+	//// top door room3
+	//model1 = glm::mat4();
+	//model1 = glm::translate(model1, glm::vec3(15.5f, 9.6f, -30.2));
+	//model1 = glm::scale(model1, glm::vec3(5.2f));
+	//shader.SetMat4("model", model1);
+	//renderParallelepipedTopDoorRoom3();
 }
 
 
