@@ -466,6 +466,9 @@ void renderFox();
 void renderBear(const Shader& shader);
 void renderBear();
 
+void renderDeer(const Shader& shader);
+void renderDeer();
+
 void renderSavannahTree(const Shader& shader);
 void renderSavannahTree();
 void renderParallelepipedParalelFirstDoor();
@@ -540,7 +543,7 @@ int main(int argc, char** argv)
 	unsigned int wolfTexture = CreateTexture(strExePath + "\\Museum\\Animals\\Wolf1\\WOLF.png");
 	unsigned int foxTexture = CreateTexture(strExePath + "\\Museum\\Animals\\Fox2\\Mat_FoxCoat_WIP.05.png");
 	unsigned int bearTexture = CreateTexture(strExePath + "\\Museum\\Animals\\Bear1\\bear.jpg");
-
+	unsigned int deerTexture = CreateTexture(strExePath + "\\Museum\\Animals\\Deer3\\deer1.jpg");
 
 	unsigned int savannahGroundTexture = CreateTexture(strExePath + "\\Museum\\Walls\\SavannahGround\\test.jpg");
 	unsigned int grassGroundTexture = CreateTexture(strExePath + "\\Museum\\Walls\\Grass.jpg");
@@ -786,6 +789,17 @@ int main(int argc, char** argv)
 		glCullFace(GL_BACK);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, deerTexture);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
+		renderDeer(shadowMappingDepthShader);
+		glCullFace(GL_BACK);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
@@ -918,6 +932,13 @@ int main(int argc, char** argv)
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 		glDisable(GL_CULL_FACE);
 		renderBear(shadowMappingShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, deerTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderDeer(shadowMappingShader);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, wolfTexture);
@@ -2628,6 +2649,114 @@ void renderBear()
 	glBindVertexArray(bearVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, bearVBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bearEBO);
+	int indexArraySize;
+	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &indexArraySize);
+	glDrawElements(GL_TRIANGLES, indexArraySize / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+}
+
+unsigned int indicesD[72000];
+objl::Vertex verD[2000000];
+
+GLuint deerVAO, deerVBO, deerEBO;
+
+void renderDeer(const Shader& shader)
+{
+	//cheetah
+
+	glm::mat4 model;
+	model = glm::mat4();
+	model = glm::translate(model, glm::vec3(-7.5f, 0.0f, -3.5f));
+	model = glm::scale(model, glm::vec3(0.02f));
+	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+	// Adaugarea rota?iei spre dreapta
+	//float rotationAngle = 170.0f; // Rotire spre dreapta
+	//model = glm::rotate(model, glm::radians(rotationAngle), glm::vec3(0.0f, 0.0f, 1.0f)); // Rotire spre dreapta pe axa OZ
+	float rotationAngle1 = 90.0f; // Rotire spre dreapta
+	model = glm::rotate(model, glm::radians(rotationAngle1), glm::vec3(1.0f, 0.0f, 0.0f)); // Rotire spre dreapta pe axa OZ
+	shader.SetMat4("model", model);
+	renderDeer();
+}
+
+
+
+
+void renderDeer()
+{
+	// initialize (if necessary)
+	if (wolfVAO == 0)
+	{
+
+		std::vector<float> verticess;
+		std::vector<float> indicess;
+
+
+
+		Loader.LoadFile("..\\Museum\\Animals\\Deer3\\Deer.obj");
+		objl::Mesh curMesh = Loader.LoadedMeshes[0];
+		int size = curMesh.Vertices.size();
+		objl::Vertex v;
+		const float scaleFactor = 0.5f; // factorul de scalare
+		for (int j = 0; j < curMesh.Vertices.size(); j++)
+		{
+			v.Position.X = (float)curMesh.Vertices[j].Position.X * scaleFactor;
+			v.Position.Y = (float)curMesh.Vertices[j].Position.Y * scaleFactor;
+			v.Position.Z = (float)curMesh.Vertices[j].Position.Z * scaleFactor;
+			v.Normal.X = (float)curMesh.Vertices[j].Normal.X;
+			v.Normal.Y = (float)curMesh.Vertices[j].Normal.Y;
+			v.Normal.Z = (float)curMesh.Vertices[j].Normal.Z;
+			v.TextureCoordinate.X = (float)curMesh.Vertices[j].TextureCoordinate.X;
+			v.TextureCoordinate.Y = (float)curMesh.Vertices[j].TextureCoordinate.Y;
+
+
+			verD[j] = v;
+		}
+		for (int j = 0; j < verticess.size(); j++)
+		{
+			vertices[j] = verticess.at(j);
+		}
+
+		for (int j = 0; j < curMesh.Indices.size(); j++)
+		{
+
+			indicess.push_back((float)curMesh.Indices[j]);
+
+		}
+		for (int j = 0; j < curMesh.Indices.size(); j++)
+		{
+			indicesD[j] = indicess.at(j);
+		}
+
+		glGenVertexArrays(1, &deerVAO);
+		glGenBuffers(1, &deerVBO);
+		glGenBuffers(1, &deerEBO);
+		// fill buffer
+		glBindBuffer(GL_ARRAY_BUFFER, deerVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(verD), verD, GL_DYNAMIC_DRAW);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, deerEBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicesD), &indicesD, GL_DYNAMIC_DRAW);
+		// link vertex attributes
+		glBindVertexArray(deerVAO);
+		glEnableVertexAttribArray(0);
+
+
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
+	// render Cube
+	glBindVertexArray(deerVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, deerVBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, deerEBO);
 	int indexArraySize;
 	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &indexArraySize);
 	glDrawElements(GL_TRIANGLES, indexArraySize / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
