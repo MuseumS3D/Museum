@@ -440,6 +440,9 @@ void renderFloor1(const Shader& shader);
 void renderFloor();
 void renderCeiling();
 
+void renderGround(const Shader& shader);
+void renderGround();
+
 void renderGiraffe(const Shader& shader);
 void renderGiraffe();
 
@@ -513,6 +516,7 @@ int main(int argc, char** argv)
 	unsigned int cheetahTexture = CreateTexture(strExePath + "\\Museum\\Animals\\Cheetah\\cheetah.png");
 
 
+	unsigned int savannahGroundTexture = CreateTexture(strExePath + "\\Museum\\Walls\\SavannahGround\\test.jpg");
 	// std::string strExePath; // Asigur?-te c? aceast? variabil? este ini?ializat? corect în codul t?u
 	 // Restul codului pentru ini?ializarea lui strExePath ...
 
@@ -644,6 +648,17 @@ int main(int argc, char** argv)
 		glCullFace(GL_BACK);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, savannahGroundTexture);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
+		renderGround(shadowMappingDepthShader);
+		glCullFace(GL_BACK);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
@@ -702,6 +717,13 @@ int main(int argc, char** argv)
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 		glDisable(GL_CULL_FACE);
 		renderWall(shadowMappingShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, savannahGroundTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderGround(shadowMappingShader);
 
 
 
@@ -1469,9 +1491,14 @@ void renderGiraffe(const Shader& shader)
 
 	glm::mat4 model;
 	model = glm::mat4();
-	model = glm::translate(model, glm::vec3(-2.5f, 4.2f, 0.5f));
+	model = glm::translate(model, glm::vec3(-23.5f, 4.5f, -1.5f));
 	model = glm::scale(model, glm::vec3(0.1f));
 	model = glm::rotate(model, glm::radians(50.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+	// Adaugarea rota?iei spre dreapta
+	float rotationAngle = 120.0f; // Rotire spre dreapta
+	model = glm::rotate(model, glm::radians(rotationAngle), glm::vec3(0.0f, 1.0f, 0.0f)); // Rotire spre dreapta pe axa OZ
+
 	shader.SetMat4("model", model);
 	renderGiraffe();
 }
@@ -1591,14 +1618,14 @@ void renderCheetah(const Shader& shader)
 
 	glm::mat4 model;
 	model = glm::mat4();
-	model = glm::translate(model, glm::vec3(-14.5f, 1.1f, 0.5f));
+	model = glm::translate(model, glm::vec3(-25.5f, 1.55f, -9.5f));
 	model = glm::scale(model, glm::vec3(6.f));
 	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 	// Adaugarea rota?iei spre dreapta
-	float rotationAngle = 50.0f; // Rotire spre dreapta
+	float rotationAngle = 70.0f; // Rotire spre dreapta
 	model = glm::rotate(model, glm::radians(rotationAngle), glm::vec3(0.0f, 0.0f, 1.0f)); // Rotire spre dreapta pe axa OZ
 	shader.SetMat4("model", model);
 	renderCheetah();
@@ -1681,6 +1708,126 @@ void renderCheetah()
 	int indexArraySize;
 	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &indexArraySize);
 	glDrawElements(GL_TRIANGLES, indexArraySize / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+}
+void renderGround(const Shader& shader)
+{
+
+	//Ground
+
+	glm::mat4 model;
+	model = glm::mat4();
+	model = glm::translate(model, glm::vec3(-26.6f, -2.3f, -12.1f));
+	model = glm::scale(model, glm::vec3(2.3f));
+	model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+	shader.SetMat4("model", model);
+	renderGround();
+
+
+
+	/*model = glm::mat4();
+	model = glm::translate(model, glm::vec3(3.25f, 0.4f, -19.95f));
+	model = glm::scale(model, glm::vec3(2.6f));
+	model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+	shader.SetMat4("model", model);
+	renderGround();*/
+
+
+}
+unsigned int savanVAO = 0;
+void renderGround()
+{
+	unsigned int planeVBO;
+
+	float scaleFactor = 0.2f;
+
+	if (savanVAO == 0) {
+		// set up vertex data (and buffer(s)) and configure vertex attributes
+		//float planeVertices[] = {
+		//	// positions          // normals          // texcoords
+		//	52.7f*scaleFactor, -0.5f, 50.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, // Top-right corner (shifted further right)
+		//	-22.3f*scaleFactor, -0.5f, 50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // Top-left corner (shifted further right)
+		//	-22.3f*scaleFactor, -0.5f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, // Bottom-left corner
+		//	52.7f*scaleFactor, -0.5f, -50.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f  // Bottom-right corner
+		//};
+		 // set up vertex data (and buffer(s)) and configure vertex attributes
+		float skew = 1.8f;
+		float skew1 = 1.0f;
+		float ceilingLength = 2.3f;
+		float ceilingWidth = 13.40f;
+		float ceilingWidthBack = 2.0f;
+		float ceilingHeight = 2.0f;
+
+
+
+
+		float planeVertices[] = {
+			// back face
+			-1.0f - ceilingLength, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
+			1.0f,  1.0f - skew1, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
+			1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f, // bottom-right         
+			1.0f,  1.0f - skew1, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
+			-1.0f - ceilingLength, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
+			-1.0f - ceilingLength,  1.0f - skew1, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, // top-left
+			// front face
+			-1.0f - ceilingLength, -1.0f,  1.0f + ceilingWidth,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
+			1.0f, -1.0f,  1.0f + ceilingWidth,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, // bottom-right
+			1.0f,  1.0f - skew1,  1.0f + ceilingWidth,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+			1.0f,  1.0f - skew1,  1.0f + ceilingWidth,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+			-1.0f - ceilingLength,  1.0f - skew1,  1.0f + ceilingWidth,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // top-left
+			-1.0f - ceilingLength, -1.0f,  1.0f + ceilingWidth,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
+			// left face
+			-1.0f - ceilingLength,  1.0f - skew1,  1.0f + ceilingWidth, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+			-1.0f - ceilingLength,  1.0f - skew1, -1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-left
+			-1.0f - ceilingLength, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
+			-1.0f - ceilingLength, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
+			-1.0f - ceilingLength, -1.0f,  1.0f + ceilingWidth, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+			-1.0f - ceilingLength,  1.0f - skew1,  1.0f + ceilingWidth, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+			// right face
+			1.0f,  1.0f - skew1,  1.0f + ceilingWidth,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+			1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
+			1.0f,  1.0f - skew1, -1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-right         
+			1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
+			1.0f,  1.0f - skew1,  1.0f + ceilingWidth,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+			1.0f, -1.0f,  1.0f + ceilingWidth,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left     
+			// bottom face
+			-1.0f - ceilingLength, -1.0f, -1.0f + ceilingWidth + skew + 0.2f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+			1.0f, -1.0f, -1.0f + ceilingWidth + skew + 0.2f,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, // top-left
+			1.0f, -1.0f,  1.0f - ceilingWidthBack,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
+			1.0f, -1.0f,  1.0f - ceilingWidthBack,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
+			-1.0f - ceilingLength, -1.0f,  1.0f - ceilingWidthBack,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+			-1.0f - ceilingLength, -1.0f, -1.0f + ceilingWidth + skew + 0.2f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+			// top face
+			-1.0f - ceilingLength,  1.0f - skew1, -1.0f + ceilingWidth + skew + 0.2f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
+			1.0f,  1.0f - skew1 , 1.0f - ceilingWidthBack ,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+			1.0f,  1.0f - skew1, -1.0f + ceilingWidth + skew + 0.2f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, // top-right     
+			1.0f,  1.0f - skew1,  1.0f - ceilingWidthBack,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+			-1.0f - ceilingLength,  1.0f - skew1, -1.0f + ceilingWidth + skew + 0.2f ,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
+			-1.0f - ceilingLength,  1.0f - skew1,  1.0f - ceilingWidthBack,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left   
+		};
+
+
+
+
+		// plane VAO
+		glGenVertexArrays(1, &savanVAO);
+		glGenBuffers(1, &planeVBO);
+		glBindVertexArray(savanVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), planeVertices, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+		glBindVertexArray(0);
+	}
+
+	glBindVertexArray(savanVAO);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
 }
