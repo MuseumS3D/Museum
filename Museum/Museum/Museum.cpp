@@ -450,6 +450,10 @@ void renderGiraffe();
 
 void renderCheetah(const Shader& shader);
 void renderCheetah();
+
+
+void renderSavannahTree(const Shader& shader);
+void renderSavannahTree();
 void renderParallelepipedParalelFirstDoor();
 
 
@@ -458,7 +462,7 @@ double deltaTime = 0.0f;	// time between current frame and last frame
 double lastFrame = 0.0f;
 
 namespace fs = std::filesystem;
-
+unsigned int leafTexture;
 int main(int argc, char** argv)
 {
 
@@ -520,11 +524,21 @@ int main(int argc, char** argv)
 
 	unsigned int savannahGroundTexture = CreateTexture(strExePath + "\\Museum\\Walls\\SavannahGround\\test.jpg");
 	unsigned int grassGroundTexture = CreateTexture(strExePath + "\\Museum\\Walls\\Grass.jpg");
+
+
+
+	unsigned int treeTexture = CreateTexture(strExePath + "\\Museum\\Tree\\savannahTree\\bark_0021.jpg");
+	//unsigned int leafTexture = CreateTexture(strExePath + "\\Museum\\Tree\\Tree\\branch.png");
+	leafTexture = CreateTexture(strExePath + "\\Museum\\Tree\\Tree\\branch.png");
+
 	// std::string strExePath; // Asigur?-te c? aceast? variabil? este ini?ializat? corect în codul t?u
 	 // Restul codului pentru ini?ializarea lui strExePath ...
 
 	//std::string imagePath = strExePath + "\\Museum\\Animals\\Giraffe\\giraffe.jpg";
 	std::string imagePath = strExePath + "\\Museum\\Animals\\Cheetah\\cheetah.png";
+
+
+
 
 	// Verific? dac? directorul "Museum" exist?
 	if (fs::exists(strExePath + "\\Museum")) {
@@ -673,6 +687,17 @@ int main(int argc, char** argv)
 		glCullFace(GL_BACK);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, treeTexture);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
+		renderSavannahTree(shadowMappingDepthShader);
+		glCullFace(GL_BACK);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
@@ -745,6 +770,13 @@ int main(int argc, char** argv)
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 		glDisable(GL_CULL_FACE);
 		renderGrassGround(shadowMappingShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, treeTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderSavannahTree(shadowMappingShader);
 
 
 
@@ -1878,4 +1910,72 @@ void renderGround()
 	glBindVertexArray(savanVAO);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
+}
+
+unsigned int indicesST[72000];
+objl::Vertex verST[82000];
+
+GLuint savanTreeVAO, savanTreeVBO, savanTreeEBO;
+GLuint leafVAO, leafVBO, leafEBO;
+
+void renderSavannahTree()
+{
+	// initialize (if necessary)
+	if (savanTreeVAO == 0)
+	{
+		// Load tree object file
+		Loader.LoadFile("..\\Museum\\Tree\\savannahTree\\Tree.obj");
+
+		// Generate VAO, VBO, EBO for tree
+		glGenVertexArrays(1, &savanTreeVAO);
+		glGenBuffers(1, &savanTreeVBO);
+		glGenBuffers(1, &savanTreeEBO);
+
+		// Bind VAO for tree
+		glBindVertexArray(savanTreeVAO);
+
+		// Bind vertex buffer for tree
+		glBindBuffer(GL_ARRAY_BUFFER, savanTreeVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * Loader.LoadedVertices.size(), &Loader.LoadedVertices[0], GL_STATIC_DRAW);
+
+		// Bind index buffer for tree
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, savanTreeEBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * Loader.LoadedIndices.size(), &Loader.LoadedIndices[0], GL_STATIC_DRAW);
+
+		// Set vertex attribute pointers for tree
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+		glEnableVertexAttribArray(2);
+
+		// Unbind VAO for tree
+		glBindVertexArray(0);
+	}
+
+	// Draw the tree
+	glBindVertexArray(savanTreeVAO);
+	glDrawElements(GL_TRIANGLES, Loader.LoadedIndices.size(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+}
+
+void renderSavannahTree(const Shader& shader)
+{
+	// Set?m matricea de modelare pentru copac
+	glm::mat4 model = glm::mat4(1.0f); // Identitate
+	model = glm::translate(model, glm::vec3(-23.5f, 0.0f, 11.5f)); // Transla?ie
+	model = glm::scale(model, glm::vec3(4.f)); // Scalare
+	model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // Rotire pentru a-l face vertical
+
+	// Transmiterea matricei de modelare pentru copac la shader
+	shader.SetMat4("model", model);
+
+	// Activare textura frunzelor
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, leafTexture);
+	shader.SetInt("leafTexture", 1);
+
+	// Desen?m copacul (trunchiul ?i frunzele)
+	renderSavannahTree();
 }
