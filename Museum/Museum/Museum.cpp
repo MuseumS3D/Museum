@@ -460,6 +460,9 @@ void renderPanther();
 void renderWolf(const Shader& shader);
 void renderWolf();
 
+void renderFox(const Shader& shader);
+void renderFox();
+
 void renderSavannahTree(const Shader& shader);
 void renderSavannahTree();
 void renderParallelepipedParalelFirstDoor();
@@ -528,11 +531,11 @@ int main(int argc, char** argv)
 
 	unsigned int giraffeTexture = CreateTexture(strExePath + "\\Museum\\Animals\\Giraffe\\giraffe.jpg");
 	unsigned int cheetahTexture = CreateTexture(strExePath + "\\Museum\\Animals\\Cheetah\\cheetah.png");
-
 	unsigned int monkeyTexture = CreateTexture(strExePath + "\\Museum\\Animals\\Monkey1\\Gorilla_Bake1_PBR StoA_Diffuse.png");
 	unsigned int pantherTexture = CreateTexture(strExePath + "\\Museum\\Animals\\Panther\\panther.jpg");
 
 	unsigned int wolfTexture = CreateTexture(strExePath + "\\Museum\\Animals\\Wolf1\\WOLF.png");
+	unsigned int foxTexture = CreateTexture(strExePath + "\\Museum\\Animals\\Fox2\\Mat_FoxCoat_WIP.05.png");
 
 
 	unsigned int savannahGroundTexture = CreateTexture(strExePath + "\\Museum\\Walls\\SavannahGround\\test.jpg");
@@ -757,6 +760,17 @@ int main(int argc, char** argv)
 		glCullFace(GL_BACK);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, foxTexture);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
+		renderFox(shadowMappingDepthShader);
+		glCullFace(GL_BACK);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
@@ -875,6 +889,13 @@ int main(int argc, char** argv)
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 		glDisable(GL_CULL_FACE);
 		renderPanther(shadowMappingShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, foxTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderFox(shadowMappingShader);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, wolfTexture);
@@ -2367,6 +2388,116 @@ void renderWolf()
 	glBindVertexArray(wolfVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, wolfVBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, wolfEBO);
+	int indexArraySize;
+	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &indexArraySize);
+	glDrawElements(GL_TRIANGLES, indexArraySize / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+}
+
+unsigned int indicesF[72000];
+objl::Vertex verF[2000000];
+
+GLuint foxVAO, foxVBO, foxEBO;
+
+void renderFox(const Shader& shader)
+{
+	//cheetah
+
+	glm::mat4 model;
+	model = glm::mat4();
+	model = glm::translate(model, glm::vec3(-7.5f, 0.0f, 10.5f));
+	model = glm::scale(model, glm::vec3(0.7f));
+	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+	//// Adaugarea rota?iei spre dreapta
+	//float rotationAngle = 170.0f; // Rotire spre dreapta
+	//model = glm::rotate(model, glm::radians(rotationAngle), glm::vec3(0.0f, 0.0f, 1.0f)); // Rotire spre dreapta pe axa OZ
+	//float rotationAngle1 = 90.0f; // Rotire spre dreapta
+	//model = glm::rotate(model, glm::radians(rotationAngle1), glm::vec3(1.0f, 0.0f, 0.0f)); // Rotire spre dreapta pe axa OZ
+	//float rotationAngle2 = 90.0f; // Rotire spre dreapta
+	//model = glm::rotate(model, glm::radians(rotationAngle2), glm::vec3(0.0f, 1.0f, 0.0f)); // Rotire spre dreapta pe axa OZ
+	shader.SetMat4("model", model);
+	renderFox();
+}
+
+
+
+
+void renderFox()
+{
+	// initialize (if necessary)
+	if (wolfVAO == 0)
+	{
+
+		std::vector<float> verticess;
+		std::vector<float> indicess;
+
+
+
+		Loader.LoadFile("..\\Museum\\Animals\\Fox2\\ipa7x275hkdm.obj");
+		objl::Mesh curMesh = Loader.LoadedMeshes[0];
+		int size = curMesh.Vertices.size();
+		objl::Vertex v;
+		const float scaleFactor = 0.5f; // factorul de scalare
+		for (int j = 0; j < curMesh.Vertices.size(); j++)
+		{
+			v.Position.X = (float)curMesh.Vertices[j].Position.X * scaleFactor;
+			v.Position.Y = (float)curMesh.Vertices[j].Position.Y * scaleFactor;
+			v.Position.Z = (float)curMesh.Vertices[j].Position.Z * scaleFactor;
+			v.Normal.X = (float)curMesh.Vertices[j].Normal.X;
+			v.Normal.Y = (float)curMesh.Vertices[j].Normal.Y;
+			v.Normal.Z = (float)curMesh.Vertices[j].Normal.Z;
+			v.TextureCoordinate.X = (float)curMesh.Vertices[j].TextureCoordinate.X;
+			v.TextureCoordinate.Y = (float)curMesh.Vertices[j].TextureCoordinate.Y;
+
+
+			verF[j] = v;
+		}
+		for (int j = 0; j < verticess.size(); j++)
+		{
+			vertices[j] = verticess.at(j);
+		}
+
+		for (int j = 0; j < curMesh.Indices.size(); j++)
+		{
+
+			indicess.push_back((float)curMesh.Indices[j]);
+
+		}
+		for (int j = 0; j < curMesh.Indices.size(); j++)
+		{
+			indicesF[j] = indicess.at(j);
+		}
+
+		glGenVertexArrays(1, &foxVAO);
+		glGenBuffers(1, &foxVBO);
+		glGenBuffers(1, &foxEBO);
+		// fill buffer
+		glBindBuffer(GL_ARRAY_BUFFER, foxVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(verF), verF, GL_DYNAMIC_DRAW);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, foxEBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicesF), &indicesF, GL_DYNAMIC_DRAW);
+		// link vertex attributes
+		glBindVertexArray(foxVAO);
+		glEnableVertexAttribArray(0);
+
+
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
+	// render Cube
+	glBindVertexArray(foxVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, foxVBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, foxEBO);
 	int indexArraySize;
 	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &indexArraySize);
 	glDrawElements(GL_TRIANGLES, indexArraySize / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
