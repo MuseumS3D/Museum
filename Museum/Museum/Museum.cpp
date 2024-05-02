@@ -440,6 +440,8 @@ void renderFloor1(const Shader& shader);
 void renderFloor();
 void renderCeiling();
 
+void renderGrassGround(const Shader& shader);
+
 void renderGround(const Shader& shader);
 void renderGround();
 
@@ -517,6 +519,7 @@ int main(int argc, char** argv)
 
 
 	unsigned int savannahGroundTexture = CreateTexture(strExePath + "\\Museum\\Walls\\SavannahGround\\test.jpg");
+	unsigned int grassGroundTexture = CreateTexture(strExePath + "\\Museum\\Walls\\Grass.jpg");
 	// std::string strExePath; // Asigur?-te c? aceast? variabil? este ini?ializat? corect în codul t?u
 	 // Restul codului pentru ini?ializarea lui strExePath ...
 
@@ -659,6 +662,17 @@ int main(int argc, char** argv)
 		glCullFace(GL_BACK);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, grassGroundTexture);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
+		renderGrassGround(shadowMappingDepthShader);
+		glCullFace(GL_BACK);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
@@ -724,6 +738,13 @@ int main(int argc, char** argv)
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 		glDisable(GL_CULL_FACE);
 		renderGround(shadowMappingShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, grassGroundTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderGrassGround(shadowMappingShader);
 
 
 
@@ -1738,6 +1759,33 @@ void renderGround(const Shader& shader)
 
 }
 unsigned int savanVAO = 0;
+
+void renderGrassGround(const Shader& shader)
+{
+
+	//Ground
+
+	glm::mat4 model;
+	model = glm::mat4();
+	model = glm::translate(model, glm::vec3(-7.6f, -2.3f, -12.1f));
+	model = glm::scale(model, glm::vec3(2.3f));
+	model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+	shader.SetMat4("model", model);
+	renderGround();
+
+
+
+	/*model = glm::mat4();
+	model = glm::translate(model, glm::vec3(3.25f, 0.4f, -19.95f));
+	model = glm::scale(model, glm::vec3(2.6f));
+	model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+	shader.SetMat4("model", model);
+	renderGround();*/
+
+
+}
 void renderGround()
 {
 	unsigned int planeVBO;
