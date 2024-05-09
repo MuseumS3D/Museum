@@ -475,6 +475,12 @@ void renderDeer();
 void renderRabbit(const Shader& shader);
 void renderRabbit();
 
+
+void renderDinoTero(const Shader& shader);
+void renderDinoTero();
+
+
+
 void renderSavannahTree(const Shader& shader);
 void renderSavannahTree();
 void renderParallelepipedParalelFirstDoor();
@@ -554,6 +560,8 @@ int main(int argc, char** argv)
 
 	unsigned int savannahGroundTexture = CreateTexture(strExePath + "\\Museum\\Walls\\SavannahGround\\test.jpg");
 	unsigned int grassGroundTexture = CreateTexture(strExePath + "\\Museum\\Walls\\Grass.jpg");
+	unsigned int dinoTero = CreateTexture(strExePath + "\\Museum\\Dinosaur\\terodactil.jpg");
+	//unsigned int dinoTero = CreateTexture(strExePath + "\\terodactil.jpg");
 
 
 
@@ -763,6 +771,8 @@ int main(int argc, char** argv)
 		glCullFace(GL_BACK);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+
+
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
@@ -818,7 +828,6 @@ int main(int argc, char** argv)
 		glCullFace(GL_BACK);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
@@ -829,6 +838,18 @@ int main(int argc, char** argv)
 		renderWolf(shadowMappingDepthShader);
 		glCullFace(GL_BACK);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, dinoTero);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
+		renderDinoTero(shadowMappingDepthShader);
+		glCullFace(GL_BACK);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 
 		// reset viewport
 		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
@@ -887,7 +908,6 @@ int main(int argc, char** argv)
 		renderSavannahTree(shadowMappingShader);
 
 
-
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, giraffeTexture);
 		glActiveTexture(GL_TEXTURE1);
@@ -930,6 +950,8 @@ int main(int argc, char** argv)
 		glDisable(GL_CULL_FACE);
 		renderMonkey(shadowMappingShader);
 
+
+
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, pantherTexture);
 		glActiveTexture(GL_TEXTURE1);
@@ -965,12 +987,22 @@ int main(int argc, char** argv)
 		glDisable(GL_CULL_FACE);
 		renderRabbit(shadowMappingShader);
 
+
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, wolfTexture);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 		glDisable(GL_CULL_FACE);
 		renderWolf(shadowMappingShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, dinoTero);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderDinoTero(shadowMappingShader);
+
+
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);
@@ -1607,7 +1639,7 @@ void renderParallelepipedTopDoorRoom3()
 			-1.0f - placementLeft, -1.0f + height,  1.0f - skew, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
 			-1.0f - placementLeft,  1.0f - door_sizing + height,  1.0f - skew, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
 			// right face
-			1.0f- placementRight,  1.0f - door_sizing + height,  1.0f - skew,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+			1.0f - placementRight,  1.0f - door_sizing + height,  1.0f - skew,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
 			1.0f - placementRight, -1.0f + height, -1.0f - skew,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
 			1.0f - placementRight,  1.0f - door_sizing + height, -1.0f - skew,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-right         
 			1.0f - placementRight , -1.0f + height, -1.0f - skew,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
@@ -1665,18 +1697,18 @@ void renderParallelepipedFromDoor3()
 		float vertices[] = {
 
 			// front face
-			-1.0f  + skew, -1.0f,  1.0f+ width ,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
+			-1.0f + skew, -1.0f,  1.0f + width ,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
 			1.0f, -1.0f,  1.0f + width,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, // bottom-right
 			1.0f,  1.0f + height,  1.0f + width ,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
 			1.0f,  1.0f + height,  1.0f + width ,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
-			-1.0f  + skew,  1.0f + height,  1.0f + width,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // top-left
+			-1.0f + skew,  1.0f + height,  1.0f + width,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // top-left
 			-1.0f + skew, -1.0f,  1.0f + width ,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
 			// left face
-			-1.0f  + skew,  1.0f + height,  1.0f + width, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+			-1.0f + skew,  1.0f + height,  1.0f + width, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
 			-1.0f + skew,  1.0f + height, -1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-left
 			-1.0f + skew, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
 			-1.0f + skew, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
-			-1.0f  + skew, -1.0f,  1.0f + width , -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+			-1.0f + skew, -1.0f,  1.0f + width , -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
 			-1.0f + skew,  1.0f + height,  1.0f + width, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
 			// right face
 			1.0f,  1.0f + height,  1.0f + width ,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
@@ -1723,7 +1755,7 @@ void renderParallelepipedFromDoor3Front()
 		float vertices[] = {
 
 			// front face
-			-1.0f + skew, -1.0f,  1.0f-skew2 ,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
+			-1.0f + skew, -1.0f,  1.0f - skew2 ,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
 			1.0f, -1.0f,  1.0f - skew2,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, // bottom-right
 			1.0f,  1.0f + height,  1.0f - skew2 ,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
 			1.0f,  1.0f + height,  1.0f - skew2 ,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
@@ -2586,6 +2618,7 @@ void renderWolf()
 	glBindVertexArray(0);
 }
 
+
 unsigned int indicesF[72000];
 objl::Vertex verF[2000000];
 
@@ -3013,6 +3046,116 @@ void renderRabbit()
 	glBindVertexArray(rabbitVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, rabbitVBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rabbitEBO);
+	int indexArraySize;
+	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &indexArraySize);
+	glDrawElements(GL_TRIANGLES, indexArraySize / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+}
+
+
+
+
+
+void renderDinoTero(const Shader& shader)
+{
+	//dino
+	glm::mat4 model;
+
+	static float Offset = 0.0f;
+	const float Increment = 0.002f;
+	Offset += Increment;
+
+
+	model = glm::mat4();
+	model = glm::translate(model, glm::vec3(-15.5f, 7.0f, -28.0f));
+	model = glm::scale(model, glm::vec3(0.03f));
+	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::rotate(model, Offset, glm::vec3(0, 0, 1));
+	shader.SetMat4("model", model);
+	renderDinoTero();
+
+
+}
+
+
+
+unsigned int indicesDT[720000];
+objl::Vertex verDT[900000];
+
+GLuint dinoTeroVAO, dinoTeroVBO, dinoTeroEBO;
+void renderDinoTero()
+{
+	// initialize (if necessary)
+	if (dinoTeroVAO == 0)
+	{
+
+		std::vector<float> verticess;
+		std::vector<float> indicess;
+
+
+		Loader.LoadFile("..\\Museum\\Animals\\Dinosaur\\terodactil.obj");
+
+		objl::Mesh curMesh = Loader.LoadedMeshes[0];
+		int size = curMesh.Vertices.size();
+		objl::Vertex v;
+		for (int j = 0; j < curMesh.Vertices.size(); j++)
+		{
+			v.Position.X = (float)curMesh.Vertices[j].Position.X;
+			v.Position.Y = (float)curMesh.Vertices[j].Position.Y;
+			v.Position.Z = (float)curMesh.Vertices[j].Position.Z;
+			v.Normal.X = (float)curMesh.Vertices[j].Normal.X;
+			v.Normal.Y = (float)curMesh.Vertices[j].Normal.Y;
+			v.Normal.Z = (float)curMesh.Vertices[j].Normal.Z;
+			v.TextureCoordinate.X = (float)curMesh.Vertices[j].TextureCoordinate.X;
+			v.TextureCoordinate.Y = (float)curMesh.Vertices[j].TextureCoordinate.Y;
+
+
+			verDT[j] = v;
+		}
+		for (int j = 0; j < verticess.size(); j++)
+		{
+			vertices[j] = verticess.at(j);
+		}
+
+		for (int j = 0; j < curMesh.Indices.size(); j++)
+		{
+
+			indicess.push_back((float)curMesh.Indices[j]);
+
+		}
+		for (int j = 0; j < curMesh.Indices.size(); j++)
+		{
+			indicesDT[j] = indicess.at(j);
+		}
+
+		glGenVertexArrays(1, &dinoTeroVAO);
+		glGenBuffers(1, &dinoTeroVBO);
+		glGenBuffers(1, &dinoTeroEBO);
+		// fill buffer
+		glBindBuffer(GL_ARRAY_BUFFER, dinoTeroVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(verDT), verDT, GL_DYNAMIC_DRAW);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, dinoTeroEBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicesDT), &indicesDT, GL_DYNAMIC_DRAW);
+		// link vertex attributes
+		glBindVertexArray(dinoTeroVAO);
+		glEnableVertexAttribArray(0);
+
+
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
+	// render Cube
+	glBindVertexArray(dinoTeroVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, dinoTeroVBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, dinoTeroEBO);
 	int indexArraySize;
 	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &indexArraySize);
 	glDrawElements(GL_TRIANGLES, indexArraySize / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
