@@ -35,5 +35,17 @@
     <None Include="ShadowMapping.fs">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="PhongLight.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="PhongLight.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Lamp.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Lamp.fs">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

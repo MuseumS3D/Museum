@@ -509,6 +509,24 @@ double lastFrame = 0.0f;
 
 namespace fs = std::filesystem;
 unsigned int leafTexture;
+
+float radius = 2.0f;
+float speed = 0.0f;
+float angle = 0.0f;
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	if (key == GLFW_KEY_L && action == GLFW_PRESS)
+	{
+		speed = 1.0f;
+	}
+	if (key == GLFW_KEY_S && action == GLFW_PRESS)
+	{
+		speed = 0.0f;
+	}
+
+}
+
 int main(int argc, char** argv)
 {
 
@@ -661,9 +679,94 @@ int main(int argc, char** argv)
 
 	// lighting info
 	// -------------
-	glm::vec3 lightPos(-2.0f, 4.0f, -1.0f);
+	glm::vec3 lightPos(-0.5f, 10.0f, 0.5f);
 
 	glEnable(GL_CULL_FACE);
+
+	// set up vertex data (and buffer(s)) and configure vertex attributes
+	float vertices[] = {
+		// Fa?a frontal?
+	   -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	   -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	   -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+
+	   // Fa?a din spate
+	  -0.5f, -0.5f, -60.5f,  0.0f,  0.0f, -1.0f,
+	   0.5f, -0.5f, -60.5f,  0.0f,  0.0f, -1.0f,
+	   0.5f,  0.5f, -60.5f,  0.0f,  0.0f, -1.0f,
+	   0.5f,  0.5f, -60.5f,  0.0f,  0.0f, -1.0f,
+	  -0.5f,  0.5f, -60.5f,  0.0f,  0.0f, -1.0f,
+	  -0.5f, -0.5f, -60.5f,  0.0f,  0.0f, -1.0f,
+
+	  // Fa?a de sus
+	 -0.5f,  0.5f, -100.5f,  0.0f,  1.0f,  0.0f,
+	  0.5f,  0.5f, -100.5f,  0.0f,  1.0f,  0.0f,
+	  0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+	  0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+	 -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+	 -0.5f,  0.5f, -100.5f,  0.0f,  1.0f,  0.0f,
+
+	 // Fa?a de jos
+	-0.5f, -0.5f, -100.5f,  0.0f, -1.0f,  0.0f,
+	 0.5f, -0.5f, -100.5f,  0.0f, -1.0f,  0.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+	-0.5f, -0.5f, -100.5f,  0.0f, -1.0f,  0.0f,
+
+	// Fa?a din dreapta
+	0.5f, -0.5f, -100.5f,  1.0f,  0.0f, 0.0f,
+	0.5f, -0.5f,  0.5f,  1.0f,  0.0f, 0.0f,
+	0.5f,  0.5f,  0.5f,  1.0f,  0.0f, 0.0f,
+	0.5f,  0.5f,  0.5f,  1.0f,  0.0f, 0.0f,
+	0.5f,  0.5f, -100.5f,  1.0f,  0.0f, 0.0f,
+	0.5f, -0.5f, -100.5f,  1.0f,  0.0f, 0.0f,
+
+	// Fa?a din stânga
+   -0.5f, -0.5f, -100.5f, -1.0f,  0.0f, 0.0f,
+   -0.5f, -0.5f,  0.5f, -1.0f,  0.0f, 0.0f,
+   -0.5f,  0.5f,  0.5f, -1.0f,  0.0f, 0.0f,
+   -0.5f,  0.5f,  0.5f, -1.0f,  0.0f, 0.0f,
+   -0.5f,  0.5f, -100.5f, -1.0f,  0.0f, 0.0f,
+   -0.5f, -0.5f, -100.5f, -1.0f,  0.0f, 0.0f
+	};
+
+	// first, configure the cube's VAO (and VBO)
+	unsigned int VBO, cubeVAO;
+	glGenVertexArrays(1, &cubeVAO);
+	glGenBuffers(1, &VBO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glBindVertexArray(cubeVAO);
+
+	// position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	// normal attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	// second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
+	unsigned int lightVAO;
+	glGenVertexArrays(1, &lightVAO);
+	glBindVertexArray(lightVAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	// note that we update the lamp's position attribute's stride to reflect the updated buffer data
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	glm::vec3 lightPos1(-13.5f, 14.0f, 12.0f);
+	glm::vec3 lightPos2(-15.5f, 14.0f, 12.0f);
+
+
+	Shader lightingShader("PhongLight.vs", "PhongLight.fs");
+	Shader lampShader("Lamp.vs", "Lamp.fs");
 
 	// render loop
 	// -----------
@@ -694,8 +797,8 @@ int main(int argc, char** argv)
 		// 1. render depth of scene to texture (from light's perspective)
 		glm::mat4 lightProjection, lightView;
 		glm::mat4 lightSpaceMatrix;
-		float near_plane = 1.0f, far_plane = 7.5f;
-		lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+		float near_plane = -4.0f, far_plane = 32.0f; // Adjusta?i planele apropiate ?i îndep?rtate pentru a încadra toate obiectele
+		lightProjection = glm::ortho(-35.0f, 17.0f, -35.0f, 3.0f, near_plane, far_plane); // Ajusta?i parametrii pentru a încadra toate obiectele
 		lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
 		lightSpaceMatrix = lightProjection * lightView;
 
@@ -706,209 +809,241 @@ int main(int argc, char** argv)
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, wallTexture);
+
+		// render scene from light's point of view
+		shadowMappingDepthShader.Use();
+		shadowMappingDepthShader.SetMat4("lightSpaceMatrix", lightSpaceMatrix);
+
+		/*glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, wallTexture);*/
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_FRONT);
 		renderWall(shadowMappingDepthShader);
-		glCullFace(GL_BACK);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-
-		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, floorTexture);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
 		renderFloor1(shadowMappingDepthShader);
-		glCullFace(GL_BACK);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, savannahGroundTexture);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
 		renderGround(shadowMappingDepthShader);
-		glCullFace(GL_BACK);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, grassGroundTexture);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
+		renderGround(shadowMappingDepthShader);
 		renderGrassGround(shadowMappingDepthShader);
-		glCullFace(GL_BACK);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, treeTexture);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
 		renderSavannahTree(shadowMappingDepthShader);
-		glCullFace(GL_BACK);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, nestTexture);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
-		renderGround(shadowMappingDepthShader);
-		glCullFace(GL_BACK);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-
-
-
-		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, giraffeTexture);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
 		renderGiraffe(shadowMappingDepthShader);
-		glCullFace(GL_BACK);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-
-		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, cheetahTexture);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
 		renderCheetah(shadowMappingDepthShader);
-		glCullFace(GL_BACK);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, monkeyTexture);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
 		renderMonkey(shadowMappingDepthShader);
-		glCullFace(GL_BACK);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-
-
-		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, pantherTexture);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
+		renderMonkey(shadowMappingDepthShader);
 		renderPanther(shadowMappingDepthShader);
-		glCullFace(GL_BACK);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, foxTexture);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
 		renderFox(shadowMappingDepthShader);
-		glCullFace(GL_BACK);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, bearTexture);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
 		renderBear(shadowMappingDepthShader);
-		glCullFace(GL_BACK);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, deerTexture);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
 		renderDeer(shadowMappingDepthShader);
-		glCullFace(GL_BACK);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, rabbitTexture);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
 		renderRabbit(shadowMappingDepthShader);
-		glCullFace(GL_BACK);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, wolfTexture);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
 		renderWolf(shadowMappingDepthShader);
 		glCullFace(GL_BACK);
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, dinoTero);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
-		renderDinoTero(shadowMappingDepthShader);
-		glCullFace(GL_BACK);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		//glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		//glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		//glClear(GL_DEPTH_BUFFER_BIT);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, wallTexture);
+		//glEnable(GL_CULL_FACE);
+		//glCullFace(GL_FRONT);
+		//renderWall(shadowMappingDepthShader);
+		//glCullFace(GL_BACK);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		//ROOM 3
 
-		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, duckTexture);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
-		renderDuck(shadowMappingDepthShader);
-		glCullFace(GL_BACK);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		//glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		//glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		//glClear(GL_DEPTH_BUFFER_BIT);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, floorTexture);
+		//glEnable(GL_CULL_FACE);
+		//glCullFace(GL_FRONT);
+		//renderFloor1(shadowMappingDepthShader);
+		//glCullFace(GL_BACK);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, parrotTexture);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
-		renderParrot(shadowMappingDepthShader);
-		glCullFace(GL_BACK);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		//glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		//glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		//glClear(GL_DEPTH_BUFFER_BIT);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, savannahGroundTexture);
+		//glEnable(GL_CULL_FACE);
+		//glCullFace(GL_FRONT);
+		//renderGround(shadowMappingDepthShader);
+		//glCullFace(GL_BACK);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		//glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		//glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		//glClear(GL_DEPTH_BUFFER_BIT);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, grassGroundTexture);
+		//glEnable(GL_CULL_FACE);
+		//glCullFace(GL_FRONT);
+		//renderGrassGround(shadowMappingDepthShader);
+		//glCullFace(GL_BACK);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		//glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		//glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		//glClear(GL_DEPTH_BUFFER_BIT);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, treeTexture);
+		//glEnable(GL_CULL_FACE);
+		//glCullFace(GL_FRONT);
+		//renderSavannahTree(shadowMappingDepthShader);
+		//glCullFace(GL_BACK);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		//glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		//glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		//glClear(GL_DEPTH_BUFFER_BIT);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, nestTexture);
+		//glEnable(GL_CULL_FACE);
+		//glCullFace(GL_FRONT);
+		//renderGround(shadowMappingDepthShader);
+		//glCullFace(GL_BACK);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+
+
+		//glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		//glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		//glClear(GL_DEPTH_BUFFER_BIT);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, giraffeTexture);
+		//glEnable(GL_CULL_FACE);
+		//glCullFace(GL_FRONT);
+		//renderGiraffe(shadowMappingDepthShader);
+		//glCullFace(GL_BACK);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+		//glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		//glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		//glClear(GL_DEPTH_BUFFER_BIT);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, cheetahTexture);
+		//glEnable(GL_CULL_FACE);
+		//glCullFace(GL_FRONT);
+		//renderCheetah(shadowMappingDepthShader);
+		//glCullFace(GL_BACK);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		//glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		//glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		//glClear(GL_DEPTH_BUFFER_BIT);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, monkeyTexture);
+		//glEnable(GL_CULL_FACE);
+		//glCullFace(GL_FRONT);
+		//renderMonkey(shadowMappingDepthShader);
+		//glCullFace(GL_BACK);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+
+		//glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		//glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		//glClear(GL_DEPTH_BUFFER_BIT);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, pantherTexture);
+		//glEnable(GL_CULL_FACE);
+		//glCullFace(GL_FRONT);
+		//renderPanther(shadowMappingDepthShader);
+		//glCullFace(GL_BACK);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		//glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		//glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		//glClear(GL_DEPTH_BUFFER_BIT);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, foxTexture);
+		//glEnable(GL_CULL_FACE);
+		//glCullFace(GL_FRONT);
+		//renderFox(shadowMappingDepthShader);
+		//glCullFace(GL_BACK);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		//glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		//glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		//glClear(GL_DEPTH_BUFFER_BIT);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, bearTexture);
+		//glEnable(GL_CULL_FACE);
+		//glCullFace(GL_FRONT);
+		//renderBear(shadowMappingDepthShader);
+		//glCullFace(GL_BACK);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		//glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		//glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		//glClear(GL_DEPTH_BUFFER_BIT);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, deerTexture);
+		//glEnable(GL_CULL_FACE);
+		//glCullFace(GL_FRONT);
+		//renderDeer(shadowMappingDepthShader);
+		//glCullFace(GL_BACK);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		//glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		//glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		//glClear(GL_DEPTH_BUFFER_BIT);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, rabbitTexture);
+		//glEnable(GL_CULL_FACE);
+		//glCullFace(GL_FRONT);
+		//renderRabbit(shadowMappingDepthShader);
+		//glCullFace(GL_BACK);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		//glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		//glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		//glClear(GL_DEPTH_BUFFER_BIT);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, wolfTexture);
+		//glEnable(GL_CULL_FACE);
+		//glCullFace(GL_FRONT);
+		//renderWolf(shadowMappingDepthShader);
+		//glCullFace(GL_BACK);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		//glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		//glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		//glClear(GL_DEPTH_BUFFER_BIT);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, dinoTero);
+		//glEnable(GL_CULL_FACE);
+		//glCullFace(GL_FRONT);
+		//renderDinoTero(shadowMappingDepthShader);
+		//glCullFace(GL_BACK);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		////ROOM 3
+
+		//glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		//glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		//glClear(GL_DEPTH_BUFFER_BIT);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, duckTexture);
+		//glEnable(GL_CULL_FACE);
+		//glCullFace(GL_FRONT);
+		//renderDuck(shadowMappingDepthShader);
+		//glCullFace(GL_BACK);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		//glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		//glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		//glClear(GL_DEPTH_BUFFER_BIT);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, parrotTexture);
+		//glEnable(GL_CULL_FACE);
+		//glCullFace(GL_FRONT);
+		//renderParrot(shadowMappingDepthShader);
+		//glCullFace(GL_BACK);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
 		// reset viewport
@@ -1091,7 +1226,55 @@ int main(int argc, char** argv)
 		glDisable(GL_CULL_FACE);
 		renderParrot(shadowMappingShader);
 
+		// Desenarea primului obiect
+		lightingShader.Use();
+		lightingShader.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
+		lightingShader.SetVec3("lightPos", lightPos1);
+		lightingShader.SetMat4("projection", pCamera->GetProjectionMatrix());
+		lightingShader.SetMat4("view", pCamera->GetViewMatrix());
+		glm::mat4 model1 = glm::translate(glm::mat4(1.0), glm::vec3(-7.5f, 0.0f, 15.5f));
+		model1 = glm::scale(model1, glm::vec3(3.0f));
+		lightingShader.SetMat4("model", model1);
 
+		// Desenarea obiectului principal
+		/*glBindVertexArray(cubeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);*/
+
+		// Desenarea obiectului pentru lumina
+		lampShader.Use();
+		lampShader.SetMat4("projection", pCamera->GetProjectionMatrix());
+		lampShader.SetMat4("view", pCamera->GetViewMatrix());
+		glm::mat4 lampModel1 = glm::translate(glm::mat4(1.0), lightPos1);
+		lampModel1 = glm::scale(lampModel1, glm::vec3(0.2f));
+		lampShader.SetMat4("model", lampModel1);
+
+		glBindVertexArray(lightVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		// Setarea ?i desenarea celui de-al doilea obiect
+		lightingShader.Use();
+		lightingShader.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
+		lightingShader.SetVec3("lightPos", lightPos2);
+		lightingShader.SetMat4("projection", pCamera->GetProjectionMatrix());
+		lightingShader.SetMat4("view", pCamera->GetViewMatrix());
+		glm::mat4 model2 = glm::translate(glm::mat4(1.0), glm::vec3(-7.5f, 0.0f, -11.5f));
+		model2 = glm::scale(model2, glm::vec3(3.0f));
+		lightingShader.SetMat4("model", model2);
+
+		//// Desenarea obiectului principal
+		//glBindVertexArray(cubeVAO);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		// Desenarea obiectului pentru lumina
+		lampShader.Use();
+		lampShader.SetMat4("projection", pCamera->GetProjectionMatrix());
+		lampShader.SetMat4("view", pCamera->GetViewMatrix());
+		glm::mat4 lampModel2 = glm::translate(glm::mat4(1.0), lightPos2);
+		lampModel2 = glm::scale(lampModel2, glm::vec3(0.2f));
+		lampShader.SetMat4("model", lampModel2);
+
+		glBindVertexArray(lightVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
