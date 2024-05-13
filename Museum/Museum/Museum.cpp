@@ -485,6 +485,11 @@ void renderRabbit();
 void renderDinoTero(const Shader& shader);
 void renderDinoTero();
 
+
+void renderDinoBraco(const Shader& shader);
+void renderDinoBraco();
+
+
 //ROOM 3
 
 void renderDuck(const Shader& shader);
@@ -596,7 +601,9 @@ int main(int argc, char** argv)
 	unsigned int savannahGroundTexture = CreateTexture(strExePath + "\\Museum\\Walls\\SavannahGround\\test.jpg");
 	
 	unsigned int grassGroundTexture = CreateTexture(strExePath + "\\Museum\\Walls\\Grass.jpg");
-	unsigned int dinoTero = CreateTexture(strExePath + "\\Museum\\Dinosaur\\terodactil.jpg");
+	unsigned int dinoTero = CreateTexture(strExePath + "\\Museum\\Animals\\Dinosaur\\terodactil.jpg");
+	unsigned int dinoBracotexture = CreateTexture(strExePath + "\\Museum\\Animals\\Dinosaur2\\TrexColor01152015.jpeg");
+
 	//unsigned int dinoTero = CreateTexture(strExePath + "\\terodactil.jpg");
 	unsigned int duckTexture = CreateTexture(strExePath + "\\Museum\\Animals\\duck2\\duck.jpg");
 	unsigned int parrotTexture = CreateTexture(strExePath + "\\Museum\\Animals\\Parrot\\parrot.jpg");
@@ -1201,6 +1208,14 @@ int main(int argc, char** argv)
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 		glDisable(GL_CULL_FACE);
 		renderDinoTero(shadowMappingShader);
+		
+		
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, dinoBracotexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderDinoBraco(shadowMappingShader);
 
 
 		//ROOM 3
@@ -3499,6 +3514,118 @@ void renderDinoTero()
 	glBindVertexArray(dinoTeroVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, dinoTeroVBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, dinoTeroEBO);
+	int indexArraySize;
+	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &indexArraySize);
+	glDrawElements(GL_TRIANGLES, indexArraySize / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+}
+
+
+
+
+
+
+
+void renderDinoBraco(const Shader& shader)
+{
+	//dino
+	glm::mat4 model;
+
+	static float Offset = 0.0f;
+	const float Increment = 0.002f;
+	Offset += Increment;
+
+
+	model = glm::mat4();
+	model = glm::translate(model, glm::vec3(-16.5f, -0.3f, -42.0f));
+	model = glm::scale(model, glm::vec3(0.7f));
+	//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	shader.SetMat4("model", model);
+	renderDinoBraco();
+
+
+}
+
+
+
+unsigned int indicesBR[720000];
+objl::Vertex verBR[900000];
+
+GLuint dinoBracoVAO, dinoBracoVBO, dinoBracoEBO;
+void renderDinoBraco()
+{
+	// initialize (if necessary)
+	if (dinoBracoVAO == 0)
+	{
+
+		std::vector<float> verticess;
+		std::vector<float> indicess;
+
+
+		Loader.LoadFile("..\\Museum\\Animals\\Dinosaur2\\TrexByJoel3d.obj");
+
+		objl::Mesh curMesh = Loader.LoadedMeshes[0];
+		int size = curMesh.Vertices.size();
+		objl::Vertex v;
+		for (int j = 0; j < curMesh.Vertices.size(); j++)
+		{
+			v.Position.X = (float)curMesh.Vertices[j].Position.X;
+			v.Position.Y = (float)curMesh.Vertices[j].Position.Y;
+			v.Position.Z = (float)curMesh.Vertices[j].Position.Z;
+			v.Normal.X = (float)curMesh.Vertices[j].Normal.X;
+			v.Normal.Y = (float)curMesh.Vertices[j].Normal.Y;
+			v.Normal.Z = (float)curMesh.Vertices[j].Normal.Z;
+			v.TextureCoordinate.X = (float)curMesh.Vertices[j].TextureCoordinate.X;
+			v.TextureCoordinate.Y = (float)curMesh.Vertices[j].TextureCoordinate.Y;
+
+
+			verDT[j] = v;
+		}
+		for (int j = 0; j < verticess.size(); j++)
+		{
+			vertices[j] = verticess.at(j);
+		}
+
+		for (int j = 0; j < curMesh.Indices.size(); j++)
+		{
+
+			indicess.push_back((float)curMesh.Indices[j]);
+
+		}
+		for (int j = 0; j < curMesh.Indices.size(); j++)
+		{
+			indicesDT[j] = indicess.at(j);
+		}
+
+		glGenVertexArrays(1, &dinoBracoVAO);
+		glGenBuffers(1, &dinoBracoVBO);
+		glGenBuffers(1, &dinoBracoEBO);
+		// fill buffer
+		glBindBuffer(GL_ARRAY_BUFFER, dinoBracoVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(verDT), verDT, GL_DYNAMIC_DRAW);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, dinoBracoEBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicesDT), &indicesDT, GL_DYNAMIC_DRAW);
+		// link vertex attributes
+		glBindVertexArray(dinoBracoVAO);
+		glEnableVertexAttribArray(0);
+
+
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
+	// render Cube
+	glBindVertexArray(dinoBracoVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, dinoBracoVBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, dinoBracoEBO);
 	int indexArraySize;
 	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &indexArraySize);
 	glDrawElements(GL_TRIANGLES, indexArraySize / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
