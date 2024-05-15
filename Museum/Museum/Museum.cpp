@@ -134,31 +134,38 @@ public:
 		float velocity = cameraSpeedFactor * deltaTime;
 		glm::vec3 forwardDirection = glm::normalize(glm::vec3(forward.x, 0.0f, forward.z));
 		glm::vec3 rightDirection = glm::normalize(glm::cross(forwardDirection, worldUp));
+		glm::vec3 newPosition = position; // Variabila pentru noua pozitie
 
 		switch (direction) {
 		case ECameraMovementType::BACKWARD:
-			position -= forwardDirection * velocity;
+			newPosition -= forwardDirection * velocity;
 			break;
 		case ECameraMovementType::FORWARD:
-			position += forwardDirection * velocity;
+			newPosition += forwardDirection * velocity;
 			break;
 		case ECameraMovementType::LEFT:
-			position -= rightDirection * velocity;
+			newPosition -= rightDirection * velocity;
 			break;
 		case ECameraMovementType::RIGHT:
-			position += rightDirection * velocity;
+			newPosition += rightDirection * velocity;
 			break;
 		case ECameraMovementType::UP:
-			position += worldUp * velocity;
+			newPosition += worldUp * velocity;
 			break;
 		case ECameraMovementType::DOWN:
-			position -= worldUp * velocity;
-			if (position.y < 0)
+			newPosition -= worldUp * velocity;
+			if (newPosition.y < 0)
 			{
-				position.y = 0;
+				newPosition.y = 0;
 			}
 			break;
 		}
+
+		// Verifica coliziunea si aplica noua pozizie doar daca nu exista coliziune
+		if (!CheckCollisionWithWalls(newPosition)) {
+			position = newPosition;
+		}
+
 	}
 
 	void MouseControl(float xPos, float yPos)
@@ -195,6 +202,40 @@ public:
 	}
 
 private:
+
+	bool CheckCollisionWithWalls(const glm::vec3& newPosition) const {
+		// Definirea peretilor
+		struct Wall {
+			float x;
+			float y;
+			float z;
+			float width;
+			float depth;
+			float height;
+		};
+
+		// Lista peretilor
+		std::vector<Wall> walls = {
+			//x,y,z,latime,adancime,inaltime
+			//camera 1
+			{-30.38f,0.0f, 20.5f, 30.38f, 20.8f,15.0f}, // Perete 1(spate)
+			{-24.28f,0.0f, -15.0f, 5.38f, 50.8f,15.0f},//perete 2(lateral)
+			{-10.28f,0.0f, -15.0f, 5.38f, 50.8f,15.0f},//perete 3(lateral)
+			{-40.0f, 14.5f, -40.0f, 80.0f, 80.0f, 1.0f}//tavan
+		};
+
+		// Verifica coliziunea pentru fiecare perete
+		for (const auto& wall : walls) {
+			if (newPosition.x >= wall.x && newPosition.x <= (wall.x + wall.width) &&
+				newPosition.y >= wall.y && newPosition.y <= (wall.y + wall.height) &&
+				newPosition.z >= wall.z && newPosition.z <= (wall.z + wall.depth)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	void ProcessMouseMovement(float xOffset, float yOffset, bool constrainPitch = true)
 	{
 		yaw += xOffset;
@@ -597,7 +638,7 @@ int main(int argc, char** argv)
 	glewInit();
 
 	// Create camera
-	pCamera = new Camera(SCR_WIDTH, SCR_HEIGHT, glm::vec3(-10.0, 1.0, 20.0));
+	pCamera = new Camera(SCR_WIDTH, SCR_HEIGHT, glm::vec3(-15.0, 1.0, 20.0));
 
 	// configure global opengl state
 	// -----------------------------
