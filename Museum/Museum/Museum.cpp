@@ -563,6 +563,9 @@ void renderBabyDuck();
 void renderSecondDuck(const Shader& shader);
 void renderSecondDuck();
 
+void renderRedBird(const Shader& shader);
+void renderRedBird();
+
 //DECORATIONS
 
 void renderSavannahTree(const Shader& shader);
@@ -685,6 +688,7 @@ int main(int argc, char** argv)
 	unsigned int whiteParrotTexture = CreateTexture(strExePath + "\\Museum\\Animals\\WhiteParrot\\12259_bird_diffuse.jpg");
 	unsigned int babyDuckTexture = CreateTexture(strExePath + "\\Museum\\Animals\\BabyDuck\\Bird_diff.jpg");
 	unsigned int secondDuckTexture = CreateTexture(strExePath + "\\Museum\\Animals\\SecondDuck\\12252_Bird_v1_diff.jpg");
+	unsigned int redBirdTexture = CreateTexture(strExePath + "\\Museum\\Animals\\small_red_bird\\12212_Bird_diffuse.jpg");
 
 
 
@@ -912,7 +916,9 @@ int main(int argc, char** argv)
 		glCullFace(GL_FRONT);
 		/*renderWall(shadowMappingDepthShader);
 		renderFloor1(shadowMappingDepthShader);*/
-		/*renderGround(shadowMappingDepthShader);
+
+
+		renderGround(shadowMappingDepthShader);
 		renderGrassGround(shadowMappingDepthShader);
 		renderSavannahTree(shadowMappingDepthShader);
 		renderBirdTree(shadowMappingDepthShader);
@@ -928,8 +934,8 @@ int main(int argc, char** argv)
 		renderWolf(shadowMappingDepthShader);
 		renderDinoTero(shadowMappingDepthShader);
 		renderDinoSpino(shadowMappingDepthShader);
-		renderDinoStego(shadowMappingDepthShader);*/
-		//renderDinoTrex(shadowMappingDepthShader);
+		renderDinoStego(shadowMappingDepthShader);
+		renderDinoTrex(shadowMappingDepthShader);
 		renderNest(shadowMappingDepthShader);
 		renderSecondNest(shadowMappingDepthShader);
 		renderDuck(shadowMappingDepthShader);
@@ -940,6 +946,7 @@ int main(int argc, char** argv)
 		//renderWhiteParrot(shadowMappingDepthShader);
 		//renderBabyDuck(shadowMappingDepthShader);
 		renderSecondDuck(shadowMappingDepthShader);
+		renderRedBird(shadowMappingDepthShader);
 
 
 
@@ -990,19 +997,19 @@ int main(int argc, char** argv)
 
 		//ROOM1
 
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, savannahGroundTexture);
-		//glActiveTexture(GL_TEXTURE1);
-		//glBindTexture(GL_TEXTURE_2D, depthMap);
-		//glDisable(GL_CULL_FACE);
-		//renderGround(shadowMappingShader);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, savannahGroundTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderGround(shadowMappingShader);
 
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, grassGroundTexture);
-		//glActiveTexture(GL_TEXTURE1);
-		//glBindTexture(GL_TEXTURE_2D, depthMap);
-		//glDisable(GL_CULL_FACE);
-		//renderGrassGround(shadowMappingShader);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, grassGroundTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderGrassGround(shadowMappingShader);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, treeTexture);
@@ -1011,117 +1018,117 @@ int main(int argc, char** argv)
 		glDisable(GL_CULL_FACE);
 		renderSavannahTree(shadowMappingShader);
 
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, treeTexture);
-		//glActiveTexture(GL_TEXTURE1);
-		//glBindTexture(GL_TEXTURE_2D, depthMap);
-		//glDisable(GL_CULL_FACE);
-		//renderBirdTree(shadowMappingShader);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, treeTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderBirdTree(shadowMappingShader);
 
 
 
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, giraffeTexture);
-		//glActiveTexture(GL_TEXTURE1);
-		//glBindTexture(GL_TEXTURE_2D, depthMap);
-		//glDisable(GL_CULL_FACE);
-		//renderGiraffe(shadowMappingShader);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, giraffeTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderGiraffe(shadowMappingShader);
 
 
 
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, cheetahTexture);
-		//glActiveTexture(GL_TEXTURE1);
-		//glBindTexture(GL_TEXTURE_2D, depthMap);
-		//glDisable(GL_CULL_FACE);
-		//renderCheetah(shadowMappingShader);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, cheetahTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderCheetah(shadowMappingShader);
 
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, monkeyTexture);
-		//glActiveTexture(GL_TEXTURE1);
-		//glBindTexture(GL_TEXTURE_2D, depthMap);
-		//glDisable(GL_CULL_FACE);
-		//renderMonkey(shadowMappingShader);
-
-
-
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, pantherTexture);
-		//glActiveTexture(GL_TEXTURE1);
-		//glBindTexture(GL_TEXTURE_2D, depthMap);
-		//glDisable(GL_CULL_FACE);
-		//renderPanther(shadowMappingShader);
-
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, foxTexture);
-		//glActiveTexture(GL_TEXTURE1);
-		//glBindTexture(GL_TEXTURE_2D, depthMap);
-		//glDisable(GL_CULL_FACE);
-		//renderFox(shadowMappingShader);
-
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, bearTexture);
-		//glActiveTexture(GL_TEXTURE1);
-		//glBindTexture(GL_TEXTURE_2D, depthMap);
-		//glDisable(GL_CULL_FACE);
-		//renderBear(shadowMappingShader);
-
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, deerTexture);
-		//glActiveTexture(GL_TEXTURE1);
-		//glBindTexture(GL_TEXTURE_2D, depthMap);
-		//glDisable(GL_CULL_FACE);
-		//renderDeer(shadowMappingShader);
-
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, rabbitTexture);
-		//glActiveTexture(GL_TEXTURE1);
-		//glBindTexture(GL_TEXTURE_2D, depthMap);
-		//glDisable(GL_CULL_FACE);
-		//renderRabbit(shadowMappingShader);
-
-
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, wolfTexture);
-		//glActiveTexture(GL_TEXTURE1);
-		//glBindTexture(GL_TEXTURE_2D, depthMap);
-		//glDisable(GL_CULL_FACE);
-		//renderWolf(shadowMappingShader);
-
-		////ROOM 2
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, monkeyTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderMonkey(shadowMappingShader);
 
 
 
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, dinoTero);
-		//glActiveTexture(GL_TEXTURE1);
-		//glBindTexture(GL_TEXTURE_2D, depthMap);
-		//glDisable(GL_CULL_FACE);
-		//renderDinoTero(shadowMappingShader);
-		//
-		//
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, dinoStego);
-		//glActiveTexture(GL_TEXTURE1);
-		//glBindTexture(GL_TEXTURE_2D, depthMap);
-		//glDisable(GL_CULL_FACE);
-		//renderDinoStego(shadowMappingShader);
-		//
-		//
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, dinoSpino);
-		//glActiveTexture(GL_TEXTURE1);
-		//glBindTexture(GL_TEXTURE_2D, depthMap);
-		//glDisable(GL_CULL_FACE);
-		//renderDinoSpino(shadowMappingShader);
-		//
-		//
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, dinoTrex);
-		//glActiveTexture(GL_TEXTURE1);
-		//glBindTexture(GL_TEXTURE_2D, depthMap);
-		//glDisable(GL_CULL_FACE);
-		//renderDinoTrex(shadowMappingShader);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, pantherTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderPanther(shadowMappingShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, foxTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderFox(shadowMappingShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, bearTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderBear(shadowMappingShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, deerTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderDeer(shadowMappingShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, rabbitTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderRabbit(shadowMappingShader);
+
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, wolfTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderWolf(shadowMappingShader);
+
+		//ROOM 2
+
+
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, dinoTero);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderDinoTero(shadowMappingShader);
+		
+		
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, dinoStego);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderDinoStego(shadowMappingShader);
+		
+		
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, dinoSpino);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderDinoSpino(shadowMappingShader);
+		
+		
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, dinoTrex);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderDinoTrex(shadowMappingShader);
 
 
 		//ROOM 3
@@ -1190,6 +1197,13 @@ int main(int argc, char** argv)
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 		glDisable(GL_CULL_FACE);
 		renderSecondDuck(shadowMappingShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, redBirdTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderRedBird(shadowMappingShader);
 
 		// Desenarea primului obiect
 		lightingShader.Use();
@@ -1275,78 +1289,78 @@ void renderWall(const Shader& shader)
 
 	//ROOM 1
 
-	////right from door room1
-	//model = glm::mat4();
-	//model = glm::translate(model, glm::vec3(-4.2f, 4.9f, -10.2));
-	//model = glm::scale(model, glm::vec3(5.2f));
-	//shader.SetMat4("model", model);
-	//renderParallelepipedFromDoor();
+	//right from door room1
+	model = glm::mat4();
+	model = glm::translate(model, glm::vec3(-4.2f, 4.9f, -10.2));
+	model = glm::scale(model, glm::vec3(5.2f));
+	shader.SetMat4("model", model);
+	renderParallelepipedFromDoor();
 
 
-	//// top door room1
-	//model1 = glm::mat4();
-	//model1 = glm::translate(model1, glm::vec3(-16.5f, 9.6f, -10.2));
-	//model1 = glm::scale(model1, glm::vec3(5.2f));
-	//shader.SetMat4("model", model1);
-	//renderParallelepipedTopDoor();
+	// top door room1
+	model1 = glm::mat4();
+	model1 = glm::translate(model1, glm::vec3(-16.5f, 9.6f, -10.2));
+	model1 = glm::scale(model1, glm::vec3(5.2f));
+	shader.SetMat4("model", model1);
+	renderParallelepipedTopDoor();
 
-	//// left from door room1
-	//model = glm::mat4();
-	//model = glm::translate(model, glm::vec3(-22.2f, 4.9f, -10.2));
-	//model = glm::scale(model, glm::vec3(5.2f));
-	//shader.SetMat4("model", model);
-	//renderParallelepipedFromDoor();
+	// left from door room1
+	model = glm::mat4();
+	model = glm::translate(model, glm::vec3(-22.2f, 4.9f, -10.2));
+	model = glm::scale(model, glm::vec3(5.2f));
+	shader.SetMat4("model", model);
+	renderParallelepipedFromDoor();
 
-	//// lateral wall room1
-	//model = glm::mat4();
-	//model = glm::translate(model, glm::vec3(-25.0f, 4.9f, -44.5));
-	//model = glm::scale(model, glm::vec3(5.2f));
-	//shader.SetMat4("model", model);
-	//renderParallelepipedPerpendiculuarFromDoor();
+	// lateral wall room1
+	model = glm::mat4();
+	model = glm::translate(model, glm::vec3(-25.0f, 4.9f, -44.5));
+	model = glm::scale(model, glm::vec3(5.2f));
+	shader.SetMat4("model", model);
+	renderParallelepipedPerpendiculuarFromDoor();
 
-	//// ceiling room1
-	//model = glm::mat4();
-	//model = glm::translate(model, glm::vec3(-4.2f, 20.1f, -44.5));
-	//model = glm::scale(model, glm::vec3(5.2f));
-	//shader.SetMat4("model", model);
-	//renderCeiling();
+	// ceiling room1
+	model = glm::mat4();
+	model = glm::translate(model, glm::vec3(-4.2f, 20.1f, -44.5));
+	model = glm::scale(model, glm::vec3(5.2f));
+	shader.SetMat4("model", model);
+	renderCeiling();
 
-	//// lateral wall room1
-	//model = glm::mat4();
-	//model = glm::translate(model, glm::vec3(-15.6f, 4.9f, -44.5));
-	//model = glm::scale(model, glm::vec3(5.2f));
-	//shader.SetMat4("model", model);
-	//renderParallelepipedParalelFirstDoor();
+	// lateral wall room1
+	model = glm::mat4();
+	model = glm::translate(model, glm::vec3(-15.6f, 4.9f, -44.5));
+	model = glm::scale(model, glm::vec3(5.2f));
+	shader.SetMat4("model", model);
+	renderParallelepipedParalelFirstDoor();
 
-	////ROOM2
+	//ROOM2
 
-	//// left lateral wall room2
-	//model = glm::mat4();
-	//model = glm::translate(model, glm::vec3(-25.0f, 4.9f, -9.2));
-	//model = glm::scale(model, glm::vec3(5.2f));
-	//shader.SetMat4("model", model);
-	//renderParallelepipedPerpendiculuarFromDoor();
+	// left lateral wall room2
+	model = glm::mat4();
+	model = glm::translate(model, glm::vec3(-25.0f, 4.9f, -9.2));
+	model = glm::scale(model, glm::vec3(5.2f));
+	shader.SetMat4("model", model);
+	renderParallelepipedPerpendiculuarFromDoor();
 
-	////right lateral wall room2
-	//model = glm::mat4();
-	//model = glm::translate(model, glm::vec3(5.2f, 4.9f, -9.2));
-	//model = glm::scale(model, glm::vec3(5.2f));
-	//shader.SetMat4("model", model);
-	//renderParallelepipedPerpendiculuarFromDoor();
+	//right lateral wall room2
+	model = glm::mat4();
+	model = glm::translate(model, glm::vec3(5.2f, 4.9f, -9.2));
+	model = glm::scale(model, glm::vec3(5.2f));
+	shader.SetMat4("model", model);
+	renderParallelepipedPerpendiculuarFromDoor();
 
-	//// ceiling room2
-	//model = glm::mat4();
-	//model = glm::translate(model, glm::vec3(-4.2f, 20.1f, -9.2));
-	//model = glm::scale(model, glm::vec3(5.2f));
-	//shader.SetMat4("model", model);
-	//renderCeiling();
+	// ceiling room2
+	model = glm::mat4();
+	model = glm::translate(model, glm::vec3(-4.2f, 20.1f, -9.2));
+	model = glm::scale(model, glm::vec3(5.2f));
+	shader.SetMat4("model", model);
+	renderCeiling();
 
-	////front lateral wall room2
-	//model = glm::mat4();
-	//model = glm::translate(model, glm::vec3(-15.6f, 4.9f, 26.2));
-	//model = glm::scale(model, glm::vec3(5.2f));
-	//shader.SetMat4("model", model);
-	//renderParallelepipedParalelFirstDoor();
+	//front lateral wall room2
+	model = glm::mat4();
+	model = glm::translate(model, glm::vec3(-15.6f, 4.9f, 26.2));
+	model = glm::scale(model, glm::vec3(5.2f));
+	shader.SetMat4("model", model);
+	renderParallelepipedParalelFirstDoor();
 
 	//ROOM3
 
@@ -4127,13 +4141,9 @@ void renderHeron(const Shader& shader)
 
 	glm::mat4 model;
 	model = glm::mat4();
-	model = glm::translate(model, glm::vec3(25.0f, 3.0f, -23.0f));
+	model = glm::translate(model, glm::vec3(25.0f, 4.0f, -23.0f));
 	model = glm::scale(model, glm::vec3(0.01f));
 	model = glm::rotate(model, glm::radians(90.f), glm::vec3(0.0f, 1.0f, 0.0f));
-	//model = glm::rotate(model, glm::radians(120.f), glm::vec3(0.0f, 0.0f, 1.0f));
-	//model = glm::rotate(model, glm::radians(90.f), glm::vec3(0.0f, 0.0f, 1.0f));
-	//model = glm::rotate(model, glm::radians(40.f), glm::vec3(0.0f, 0.0f, -1.0f));
-	//model = glm::rotate(model, glm::radians(270.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 
 	shader.SetMat4("model", model);
@@ -4478,6 +4488,108 @@ void renderSecondDuck()
 	glBindVertexArray(duckSecondVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, duckSecondVBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, duckSecondEBO);
+	int indexArraySize;
+	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &indexArraySize);
+	glDrawElements(GL_TRIANGLES, indexArraySize / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+}
+
+void renderRedBird(const Shader& shader)
+{
+
+	//parrot
+
+	glm::mat4 model;
+	model = glm::mat4();
+	model = glm::translate(model, glm::vec3(19.7f, 7.12f, -23.3f));
+	model = glm::scale(model, glm::vec3(0.2f));
+	model = glm::rotate(model, glm::radians(180.f), glm::vec3(0.0f, 0.0f, -1.0f));
+	model = glm::rotate(model, glm::radians(90.f), glm::vec3(1.0f, 0.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(90.f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+
+
+
+	shader.SetMat4("model", model);
+	renderRedBird();
+}
+
+unsigned int indicesRedBird[720000];
+objl::Vertex verRedBird[820000];
+GLuint  redBirdVAO, redBirdVBO, redBirdEBO;
+
+void renderRedBird()
+{
+	// initialize (if necessary)
+	if (redBirdVAO == 0)
+	{
+
+		std::vector<float> verticess;
+		std::vector<float> indicess;
+
+
+
+		Loader.LoadFile("..\\Museum\\Animals\\small_red_bird\\12212_Bird_v1_l2.obj");
+		objl::Mesh curMesh = Loader.LoadedMeshes[0];
+		int size = curMesh.Vertices.size();
+		objl::Vertex v;
+		for (int j = 0; j < curMesh.Vertices.size(); j++)
+		{
+			v.Position.X = (float)curMesh.Vertices[j].Position.X;
+			v.Position.Y = (float)curMesh.Vertices[j].Position.Y;
+			v.Position.Z = (float)curMesh.Vertices[j].Position.Z;
+			v.Normal.X = (float)curMesh.Vertices[j].Normal.X;
+			v.Normal.Y = (float)curMesh.Vertices[j].Normal.Y;
+			v.Normal.Z = (float)curMesh.Vertices[j].Normal.Z;
+			v.TextureCoordinate.X = (float)curMesh.Vertices[j].TextureCoordinate.X;
+			v.TextureCoordinate.Y = (float)curMesh.Vertices[j].TextureCoordinate.Y;
+
+
+			verRedBird[j] = v;
+		}
+		for (int j = 0; j < verticess.size(); j++)
+		{
+			vertices[j] = verticess.at(j);
+		}
+
+		for (int j = 0; j < curMesh.Indices.size(); j++)
+		{
+
+			indicess.push_back((float)curMesh.Indices[j]);
+
+		}
+		for (int j = 0; j < curMesh.Indices.size(); j++)
+		{
+			indicesRedBird[j] = indicess.at(j);
+		}
+
+		glGenVertexArrays(1, &redBirdVAO);
+		glGenBuffers(1, &redBirdVBO);
+		glGenBuffers(1, &redBirdEBO);
+		// fill buffer
+		glBindBuffer(GL_ARRAY_BUFFER, redBirdVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(verRedBird), verRedBird, GL_DYNAMIC_DRAW);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, redBirdEBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicesRedBird), &indicesRedBird, GL_DYNAMIC_DRAW);
+		// link vertex attributes
+		glBindVertexArray(redBirdVAO);
+		glEnableVertexAttribArray(0);
+
+
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
+	// render Cube
+	glBindVertexArray(redBirdVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, redBirdVBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, redBirdEBO);
 	int indexArraySize;
 	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &indexArraySize);
 	glDrawElements(GL_TRIANGLES, indexArraySize / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
