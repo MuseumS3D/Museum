@@ -547,8 +547,8 @@ void renderParrot(const Shader& shader);
 void renderParrot();
 
 
-//void renderTurkey(const Shader& shader);
-//void renderTurkey();
+void renderPelican(const Shader& shader);
+void renderPelican();
 
 
 void renderHeron(const Shader& shader);
@@ -683,7 +683,7 @@ int main(int argc, char** argv)
 	//unsigned int dinoTero = CreateTexture(strExePath + "\\terodactil.jpg");
 	unsigned int duckTexture = CreateTexture(strExePath + "\\Museum\\Animals\\duck2\\duck.jpg");
 	unsigned int parrotTexture = CreateTexture(strExePath + "\\Museum\\Animals\\Parrot\\parrot.jpg");
-	//unsigned int turkeyTexture = CreateTexture(strExePath + "\\Museum\\Animals\\Turkey.zip\\turkey_0.jpg");
+	unsigned int pelicanTexture = CreateTexture(strExePath + "\\Museum\\Animals\\Pelican\\12244_Bird_diff.jpg");
 	unsigned int heronTexture = CreateTexture(strExePath + "\\Museum\\Animals\\bird_00\\bird_dif2.png");
 	unsigned int whiteParrotTexture = CreateTexture(strExePath + "\\Museum\\Animals\\WhiteParrot\\12259_bird_diffuse.jpg");
 	unsigned int babyDuckTexture = CreateTexture(strExePath + "\\Museum\\Animals\\BabyDuck\\Bird_diff.jpg");
@@ -941,7 +941,7 @@ int main(int argc, char** argv)
 		renderDuck(shadowMappingDepthShader);
 		//renderDuck(shadowMappingDepthShader);
 		renderParrot(shadowMappingDepthShader);
-		//renderTurkey(shadowMappingDepthShader);
+		renderPelican(shadowMappingDepthShader);
 		renderHeron(shadowMappingDepthShader);
 		//renderWhiteParrot(shadowMappingDepthShader);
 		//renderBabyDuck(shadowMappingDepthShader);
@@ -1161,12 +1161,12 @@ int main(int argc, char** argv)
 		glDisable(GL_CULL_FACE);
 		renderParrot(shadowMappingShader);
 
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, turkeyTexture);
-		//glActiveTexture(GL_TEXTURE1);
-		//glBindTexture(GL_TEXTURE_2D, depthMap);
-		//glDisable(GL_CULL_FACE);
-		//renderTurkey(shadowMappingShader);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, pelicanTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderPelican(shadowMappingShader);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, heronTexture);
@@ -4035,104 +4035,102 @@ void renderParrot()
 	glBindVertexArray(0);
 }
 
-//void renderTurkey(const Shader& shader)
-//{
-//		std::cout << "bla";
-//	//turkey
-//
-//	glm::mat4 model;
-//	model = glm::mat4();
-//	model = glm::translate(model, glm::vec3(12.0f, 1.0f, -23.0f));
-//	model = glm::scale(model, glm::vec3(0.7f));
-//	model = glm::rotate(model, glm::radians(90.f), glm::vec3(-1.0f, 0.0f, 0.0f));
-//	model = glm::rotate(model, glm::radians(90.f), glm::vec3(0.0f, 0.0f, 1.0f));
-//	model = glm::rotate(model, glm::radians(180.f), glm::vec3(0.0f, 0.0f, 1.0f));
-//	model = glm::rotate(model, glm::radians(40.f), glm::vec3(0.0f, 0.0f, -1.0f));
-//	shader.SetMat4("model", model);
-//	renderTurkey();
-//}
-//
-//unsigned int indicesTurkey[720000];
-//objl::Vertex verTurkey[820000];
-//GLuint  turkeyVAO, turkeyVBO, turkeyEBO;
-//
-//void renderTurkey()
-//{
-//	// initialize (if necessary)
-//	if (turkeyVAO == 0)
-//	{
-//
-//		std::vector<float> verticess;
-//		std::vector<float> indicess;
-//
-//
-//
-//		Loader.LoadFile("..\\Museum\\Animals\\Turkey.zip\\turkey.obj");
-//		std::cout << "found it";
-//		objl::Mesh curMesh = Loader.LoadedMeshes[0];
-//		int size = curMesh.Vertices.size();
-//		objl::Vertex v;
-//		for (int j = 0; j < curMesh.Vertices.size(); j++)
-//		{
-//			v.Position.X = (float)curMesh.Vertices[j].Position.X;
-//			v.Position.Y = (float)curMesh.Vertices[j].Position.Y;
-//			v.Position.Z = (float)curMesh.Vertices[j].Position.Z;
-//			v.Normal.X = (float)curMesh.Vertices[j].Normal.X;
-//			v.Normal.Y = (float)curMesh.Vertices[j].Normal.Y;
-//			v.Normal.Z = (float)curMesh.Vertices[j].Normal.Z;
-//			v.TextureCoordinate.X = (float)curMesh.Vertices[j].TextureCoordinate.X;
-//			v.TextureCoordinate.Y = (float)curMesh.Vertices[j].TextureCoordinate.Y;
-//
-//
-//			verTurkey[j] = v;
-//		}
-//		for (int j = 0; j < verticess.size(); j++)
-//		{
-//			vertices[j] = verticess.at(j);
-//		}
-//
-//		for (int j = 0; j < curMesh.Indices.size(); j++)
-//		{
-//			indicess.push_back((float)curMesh.Indices[j]);
-//
-//		}
-//		for (int j = 0; j < curMesh.Indices.size(); j++)
-//		{
-//			indicesTurkey[j] = indicess.at(j);
-//		}
-//
-//		glGenVertexArrays(1, &turkeyVAO);
-//		glGenBuffers(1, &turkeyVBO);
-//		glGenBuffers(1, &turkeyEBO);
-//		// fill buffer
-//		glBindBuffer(GL_ARRAY_BUFFER, turkeyVBO);
-//		glBufferData(GL_ARRAY_BUFFER, sizeof(verTurkey), verTurkey, GL_DYNAMIC_DRAW);
-//
-//		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, turkeyEBO);
-//		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicesTurkey), &indicesTurkey, GL_DYNAMIC_DRAW);
-//		// link vertex attributes
-//		glBindVertexArray(turkeyVAO);
-//		glEnableVertexAttribArray(0);
-//
-//
-//		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-//		glEnableVertexAttribArray(1);
-//		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-//		glEnableVertexAttribArray(2);
-//		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-//		glBindBuffer(GL_ARRAY_BUFFER, 0);
-//		glBindVertexArray(0);
-//	}
-//	// render Cube
-//	glBindVertexArray(turkeyVAO);
-//	glBindBuffer(GL_ARRAY_BUFFER, turkeyVBO);
-//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, turkeyEBO);
-//	int indexArraySize;
-//	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &indexArraySize);
-//	glDrawElements(GL_TRIANGLES, indexArraySize / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
-//	glDrawArrays(GL_TRIANGLES, 0, 36);
-//	glBindVertexArray(0);
-//}
+void renderPelican(const Shader& shader)
+{
+	//pelican
+
+	glm::mat4 model;
+	model = glm::mat4();
+	model = glm::translate(model, glm::vec3(8.0f, 0.0f, -23.0f));
+	model = glm::scale(model, glm::vec3(0.04f));
+	model = glm::rotate(model, glm::radians(90.f), glm::vec3(-1.0f, 0.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(90.f), glm::vec3(0.0f, 0.0f, 1.0f));
+	//model = glm::rotate(model, glm::radians(180.f), glm::vec3(0.0f, 0.0f, 1.0f));
+	//model = glm::rotate(model, glm::radians(40.f), glm::vec3(0.0f, 0.0f, -1.0f));
+	shader.SetMat4("model", model);
+	renderPelican();
+}
+
+unsigned int indicesPelican[720000];
+objl::Vertex verPelican[820000];
+GLuint  pelicanVAO, pelicanVBO, pelicanEBO;
+
+void renderPelican()
+{
+	// initialize (if necessary)
+	if (pelicanVAO == 0)
+	{
+
+		std::vector<float> verticess;
+		std::vector<float> indicess;
+
+
+
+		Loader.LoadFile("..\\Museum\\Animals\\Pelican\\12244_Bird_v1_L2.obj");
+		objl::Mesh curMesh = Loader.LoadedMeshes[0];
+		int size = curMesh.Vertices.size();
+		objl::Vertex v;
+		for (int j = 0; j < curMesh.Vertices.size(); j++)
+		{
+			v.Position.X = (float)curMesh.Vertices[j].Position.X;
+			v.Position.Y = (float)curMesh.Vertices[j].Position.Y;
+			v.Position.Z = (float)curMesh.Vertices[j].Position.Z;
+			v.Normal.X = (float)curMesh.Vertices[j].Normal.X;
+			v.Normal.Y = (float)curMesh.Vertices[j].Normal.Y;
+			v.Normal.Z = (float)curMesh.Vertices[j].Normal.Z;
+			v.TextureCoordinate.X = (float)curMesh.Vertices[j].TextureCoordinate.X;
+			v.TextureCoordinate.Y = (float)curMesh.Vertices[j].TextureCoordinate.Y;
+
+
+			verPelican[j] = v;
+		}
+		for (int j = 0; j < verticess.size(); j++)
+		{
+			vertices[j] = verticess.at(j);
+		}
+
+		for (int j = 0; j < curMesh.Indices.size(); j++)
+		{
+			indicess.push_back((float)curMesh.Indices[j]);
+
+		}
+		for (int j = 0; j < curMesh.Indices.size(); j++)
+		{
+			indicesPelican[j] = indicess.at(j);
+		}
+
+		glGenVertexArrays(1, &pelicanVAO);
+		glGenBuffers(1, &pelicanVBO);
+		glGenBuffers(1, &pelicanEBO);
+		// fill buffer
+		glBindBuffer(GL_ARRAY_BUFFER, pelicanVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(verPelican), verPelican, GL_DYNAMIC_DRAW);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, pelicanEBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicesPelican), &indicesPelican, GL_DYNAMIC_DRAW);
+		// link vertex attributes
+		glBindVertexArray(pelicanVAO);
+		glEnableVertexAttribArray(0);
+
+
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
+	// render Cube
+	glBindVertexArray(pelicanVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, pelicanVBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, pelicanEBO);
+	int indexArraySize;
+	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &indexArraySize);
+	glDrawElements(GL_TRIANGLES, indexArraySize / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+}
 
 void renderHeron(const Shader& shader)
 {
