@@ -554,9 +554,6 @@ void renderPelican();
 void renderHeron(const Shader& shader);
 void renderHeron();
 
-void renderWhiteParrot(const Shader& shader);
-void renderWhiteParrot();
-
 void renderBabyDuck(const Shader& shader);
 void renderBabyDuck();
 
@@ -565,6 +562,9 @@ void renderSecondDuck();
 
 void renderRedBird(const Shader& shader);
 void renderRedBird();
+
+void renderPigeon(const Shader& shader);
+void renderPigeon();
 
 //DECORATIONS
 
@@ -685,10 +685,10 @@ int main(int argc, char** argv)
 	unsigned int parrotTexture = CreateTexture(strExePath + "\\Museum\\Animals\\Parrot\\parrot.jpg");
 	unsigned int pelicanTexture = CreateTexture(strExePath + "\\Museum\\Animals\\Pelican\\12244_Bird_diff.jpg");
 	unsigned int heronTexture = CreateTexture(strExePath + "\\Museum\\Animals\\bird_00\\bird_dif2.png");
-	unsigned int whiteParrotTexture = CreateTexture(strExePath + "\\Museum\\Animals\\WhiteParrot\\12259_bird_diffuse.jpg");
 	unsigned int babyDuckTexture = CreateTexture(strExePath + "\\Museum\\Animals\\BabyDuck\\Bird_diff.jpg");
 	unsigned int secondDuckTexture = CreateTexture(strExePath + "\\Museum\\Animals\\SecondDuck\\12252_Bird_v1_diff.jpg");
 	unsigned int redBirdTexture = CreateTexture(strExePath + "\\Museum\\Animals\\small_red_bird\\12212_Bird_diffuse.jpg");
+	unsigned int pigeonTexture = CreateTexture(strExePath + "\\Museum\\Animals\\pigen\\59.png");
 
 
 
@@ -943,10 +943,10 @@ int main(int argc, char** argv)
 		renderParrot(shadowMappingDepthShader);
 		renderPelican(shadowMappingDepthShader);
 		renderHeron(shadowMappingDepthShader);
-		//renderWhiteParrot(shadowMappingDepthShader);
 		//renderBabyDuck(shadowMappingDepthShader);
 		renderSecondDuck(shadowMappingDepthShader);
 		renderRedBird(shadowMappingDepthShader);
+		renderPigeon(shadowMappingDepthShader);
 
 
 
@@ -1177,13 +1177,6 @@ int main(int argc, char** argv)
 		std::cout << heronTexture;
 
 		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, whiteParrotTexture);
-		//glActiveTexture(GL_TEXTURE1);
-		//glBindTexture(GL_TEXTURE_2D, depthMap);
-		//glDisable(GL_CULL_FACE);
-		//renderWhiteParrot(shadowMappingShader);
-
-		//glActiveTexture(GL_TEXTURE0);
 		//glBindTexture(GL_TEXTURE_2D, babyDuckTexture);
 		//glActiveTexture(GL_TEXTURE1);
 		//glBindTexture(GL_TEXTURE_2D, depthMap);
@@ -1204,6 +1197,14 @@ int main(int argc, char** argv)
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 		glDisable(GL_CULL_FACE);
 		renderRedBird(shadowMappingShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, pigeonTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderPigeon(shadowMappingShader);
+
 
 		// Desenarea primului obiect
 		lightingShader.Use();
@@ -4230,70 +4231,7 @@ void renderHeron()
 	glBindVertexArray(0);
 }
 
-unsigned int indicesWP[72000];
-objl::Vertex verWP[82000];
 
-GLuint whiteParrotVAO, whiteParrotVBO, whiteParrotEBO;
-//GLuint leafVAO, leafVBO, leafEBO;
-
-void renderWhiteParrot()
-{
-	// initialize (if necessary)
-	if (whiteParrotVAO == 0)
-	{
-		// Load tree object file
-		Loader.LoadFile("..\\Museum\\WhiteParrot\\12259_Bird_v1_L2.obj");
-
-		// Generate VAO, VBO, EBO for tree
-		glGenVertexArrays(1, &whiteParrotVAO);
-		glGenBuffers(1, &whiteParrotVBO);
-		glGenBuffers(1, &whiteParrotEBO);
-
-		// Bind VAO for tree
-		glBindVertexArray(whiteParrotVAO);
-
-		// Bind vertex buffer for tree
-		glBindBuffer(GL_ARRAY_BUFFER, whiteParrotVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * Loader.LoadedVertices.size(), &Loader.LoadedVertices[0], GL_STATIC_DRAW);
-
-		// Bind index buffer for tree
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, whiteParrotEBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * Loader.LoadedIndices.size(), &Loader.LoadedIndices[0], GL_STATIC_DRAW);
-
-		// Set vertex attribute pointers for tree
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-		glEnableVertexAttribArray(2);
-
-		// Unbind VAO for tree
-		glBindVertexArray(0);
-	}
-
-	// Draw the tree
-	glBindVertexArray(whiteParrotVAO);
-	glDrawElements(GL_TRIANGLES, Loader.LoadedIndices.size(), GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
-}
-
-void renderWhiteParrot(const Shader& shader)
-{
-
-	//parrot
-
-	glm::mat4 model;
-	model = glm::mat4();
-	model = glm::translate(model, glm::vec3(20.f, 7.7f, -23.3f));
-	model = glm::scale(model, glm::vec3(0.01f));
-	model = glm::rotate(model, glm::radians(90.f), glm::vec3(-1.0f, 0.0f, 0.0f));
-	model = glm::rotate(model, glm::radians(90.f), glm::vec3(0.0f, 0.0f, 1.0f));
-	model = glm::rotate(model, glm::radians(180.f), glm::vec3(0.0f, 0.0f, 1.0f));
-	model = glm::rotate(model, glm::radians(40.f), glm::vec3(0.0f, 0.0f, -1.0f));
-	shader.SetMat4("model", model);
-	renderWhiteParrot();
-}
 
 unsigned int indicesBabyDuck[72000];
 objl::Vertex verBabyDuck[82000];
@@ -4594,3 +4532,105 @@ void renderRedBird()
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
 }
+
+void renderPigeon(const Shader& shader)
+{
+
+	//parrot
+	glm::mat4 model;
+	model = glm::mat4();
+	model = glm::translate(model, glm::vec3(19.5f, 8.4f, -22.1f));
+	model = glm::scale(model, glm::vec3(3.f));
+	model = glm::rotate(model, glm::radians(90.f), glm::vec3(0.0f, -1.0f, 0.0f));
+
+
+
+
+	shader.SetMat4("model", model);
+	renderPigeon();
+}
+
+unsigned int indicesPigeon[720000];
+objl::Vertex verPigeon[820000];
+GLuint  pigeonVAO, pigeonVBO, pigeonEBO;
+
+void renderPigeon()
+{
+	// initialize (if necessary)
+	if (pigeonVAO == 0)
+	{
+
+		std::vector<float> verticesC;
+		std::vector<float> indicesC;
+
+
+
+		Loader.LoadFile("..\\Museum\\Animals\\pigen\\pigen.obj");
+
+;		objl::Mesh curMesh = Loader.LoadedMeshes[0];
+		int size = curMesh.Vertices.size();
+		objl::Vertex v;
+		for (int j = 0; j < curMesh.Vertices.size(); j++)
+		{
+			v.Position.X = (float)curMesh.Vertices[j].Position.X;
+			v.Position.Y = (float)curMesh.Vertices[j].Position.Y;
+			v.Position.Z = (float)curMesh.Vertices[j].Position.Z;
+			v.Normal.X = (float)curMesh.Vertices[j].Normal.X;
+			v.Normal.Y = (float)curMesh.Vertices[j].Normal.Y;
+			v.Normal.Z = (float)curMesh.Vertices[j].Normal.Z;
+			v.TextureCoordinate.X = (float)curMesh.Vertices[j].TextureCoordinate.X;
+			v.TextureCoordinate.Y = (float)curMesh.Vertices[j].TextureCoordinate.Y;
+
+
+			verPigeon[j] = v;
+		}
+		for (int j = 0; j < verticesC.size(); j++)
+		{
+			vertices[j] = verticesC.at(j);
+		}
+
+		for (int j = 0; j < curMesh.Indices.size(); j++)
+		{
+
+			indicesC.push_back((float)curMesh.Indices[j]);
+
+		}
+		for (int j = 0; j < curMesh.Indices.size(); j++)
+		{
+			indicesPigeon[j] = indicesC.at(j);
+		}
+
+		glGenVertexArrays(1, &pigeonVAO);
+		glGenBuffers(1, &pigeonVBO);
+		glGenBuffers(1, &pigeonEBO);
+		// fill buffer
+		glBindBuffer(GL_ARRAY_BUFFER, pigeonVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(verPigeon), verPigeon, GL_DYNAMIC_DRAW);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, pigeonEBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicesPigeon), &indicesPigeon, GL_DYNAMIC_DRAW);
+		// link vertex attributes
+		glBindVertexArray(pigeonVAO);
+		glEnableVertexAttribArray(0);
+
+
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
+	// render Cube
+	glBindVertexArray(pigeonVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, pigeonVBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, pigeonEBO);
+	int indexArraySize;
+	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &indexArraySize);
+	glDrawElements(GL_TRIANGLES, indexArraySize / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+}
+
+

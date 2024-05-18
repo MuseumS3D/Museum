@@ -1,0 +1,13 @@
+# MTL file - created by a modified js OBJExporter
+
+newmtl bird
+Tr 0.0000
+Tf 1.0000 1.0000 1.0000
+illum 1
+Pr 0.3999999761581421
+Pds 1
+Pl 1
+Ka 1 1 1
+Kd 0.836968719959259 0.6274710297584534 0.7054973244667053
+Ke 0 0 0
+map_Kd bird.png
