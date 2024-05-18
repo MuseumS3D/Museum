@@ -221,7 +221,7 @@ private:
 			{-30.38f,0.0f, 20.5f, 30.38f, 20.8f,15.0f}, // Perete 1(spate)
 			{-24.28f,0.0f, -15.0f, 5.38f, 50.8f,15.0f},//perete 2(lateral)
 			{-10.28f,0.0f, -15.0f, 5.38f, 50.8f,15.0f},//perete 3(lateral)
-			{-40.0f, 14.5f, -40.0f, 80.0f, 80.0f, 1.0f},//tavan
+			//{-40.0f, 14.5f, -40.0f, 80.0f, 80.0f, 1.0f},//tavan
 
 			//camera 2
 			//dino verde
@@ -545,6 +545,7 @@ void renderDeer();
 
 void renderRabbit(const Shader& shader);
 void renderRabbit();
+
 
 //ROOM 2
 
@@ -3385,14 +3386,21 @@ unsigned int indicesR[72000];
 objl::Vertex verR[2000000];
 
 GLuint rabbitVAO, rabbitVBO, rabbitEBO;
+float newY = 0.0;
+float aux = 0.008;
 
 void renderRabbit(const Shader& shader)
 {
 	//cheetah
-
+	if(newY>=3.0f)
+		aux=-0.008f;
+	if (newY <= 0.0f)
+		aux = 0.008f;
+	newY += aux;
 	glm::mat4 model;
 	model = glm::mat4();
-	model = glm::translate(model, glm::vec3(-7.5f, 0.0f, 15.5f));
+	model = glm::translate(model, glm::vec3(-7.5f, newY, 15.5f));
+
 	model = glm::scale(model, glm::vec3(0.03f));
 	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
