@@ -595,15 +595,14 @@ void renderPigeon();
 
 void renderGrassGroundRoom3(const Shader& shader);
 
-void renderAquarium(const Shader& shader);
-void renderAquarium();
-
 void renderWood(const Shader& shader);
 void renderWood();
 
+void renderFirstSnake(const Shader& shader);
+void renderFirstSnake();
+
 void renderGlassWindows(const Shader& shader);
 void renderGlassWindows();
-
 
 
 //DECORATIONS
@@ -737,6 +736,7 @@ int main(int argc, char** argv)
 	//unsigned int aquariumTexture = CreateTexture(strExePath + "\\Museum\\Animals\\Aquário_FBX\\transparent_texture.jpg");
 	unsigned int glassTexture = CreateTexture(strExePath + "\\Museum\\Glass\\glass.jpg");
 	unsigned int woodTexture = CreateTexture(strExePath + "\\Museum\\Wood\\model.jpg");
+	unsigned int firstSnakeTexture = CreateTexture(strExePath + "\\Museum\\Animals\\FirstSnake\\1649403578571_1.png");
 
 
 
@@ -995,15 +995,13 @@ int main(int argc, char** argv)
 		renderSecondDuck(shadowMappingDepthShader);
 		renderRedBird(shadowMappingDepthShader);
 		renderPigeon(shadowMappingDepthShader);
-		//renderAquarium(shadowMappingDepthShader);
-
 
 
 
 		renderBirdTree(shadowMappingDepthShader);
 		renderWood(shadowMappingDepthShader);
+		renderFirstSnake(shadowMappingDepthShader);
 		renderGrassGroundRoom3(shadowMappingDepthShader);
-		renderAquarium(shadowMappingDepthShader);
 
 		glCullFace(GL_BACK);
 
@@ -1278,6 +1276,13 @@ int main(int argc, char** argv)
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 		glDisable(GL_CULL_FACE);
 		renderWood(shadowMappingShader);
+
+			glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, firstSnakeTexture);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glDisable(GL_CULL_FACE);
+	renderFirstSnake(shadowMappingShader);
 
 			//transparent object
 		glEnable(GL_BLEND);
@@ -4743,105 +4748,6 @@ void renderGrassGroundRoom3(const Shader& shader)
 
 }
 
-void renderAquarium(const Shader& shader)
-{
-
-	//parrot
-	glm::mat4 model;
-	model = glm::mat4();
-	model = glm::translate(model, glm::vec3(19.5f, 0.0f, -26.5f));
-	model = glm::scale(model, glm::vec3(0.5f));
-
-
-
-
-	shader.SetMat4("model", model);
-	renderAquarium();
-}
-
-unsigned int indicesAquarium[720000];
-objl::Vertex verAquarium[820000];
-GLuint  aquariumVAO, aquariumVBO, aquariumEBO;
-
-void renderAquarium()
-{
-	// initialize (if necessary)
-	if (aquariumVAO == 0)
-	{
-
-		std::vector<float> verticesC;
-		std::vector<float> indicesC;
-
-
-
-		Loader.LoadFile("..\\Museum\\Wood\\model.obj");
-
-		;		objl::Mesh curMesh = Loader.LoadedMeshes[0];
-		int size = curMesh.Vertices.size();
-		objl::Vertex v;
-		for (int j = 0; j < curMesh.Vertices.size(); j++)
-		{
-			v.Position.X = (float)curMesh.Vertices[j].Position.X;
-			v.Position.Y = (float)curMesh.Vertices[j].Position.Y;
-			v.Position.Z = (float)curMesh.Vertices[j].Position.Z;
-			v.Normal.X = (float)curMesh.Vertices[j].Normal.X;
-			v.Normal.Y = (float)curMesh.Vertices[j].Normal.Y;
-			v.Normal.Z = (float)curMesh.Vertices[j].Normal.Z;
-			v.TextureCoordinate.X = (float)curMesh.Vertices[j].TextureCoordinate.X;
-			v.TextureCoordinate.Y = (float)curMesh.Vertices[j].TextureCoordinate.Y;
-
-
-			verAquarium[j] = v;
-		}
-		for (int j = 0; j < verticesC.size(); j++)
-		{
-			vertices[j] = verticesC.at(j);
-		}
-
-		for (int j = 0; j < curMesh.Indices.size(); j++)
-		{
-
-			indicesC.push_back((float)curMesh.Indices[j]);
-
-		}
-		for (int j = 0; j < curMesh.Indices.size(); j++)
-		{
-			indicesAquarium[j] = indicesC.at(j);
-		}
-
-		glGenVertexArrays(1, &aquariumVAO);
-		glGenBuffers(1, &aquariumVBO);
-		glGenBuffers(1, &aquariumEBO);
-		// fill buffer
-		glBindBuffer(GL_ARRAY_BUFFER, aquariumVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(verAquarium), verAquarium, GL_DYNAMIC_DRAW);
-
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, aquariumEBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicesAquarium), &indicesAquarium, GL_DYNAMIC_DRAW);
-		// link vertex attributes
-		glBindVertexArray(aquariumVAO);
-		glEnableVertexAttribArray(0);
-
-
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
-	}
-	// render Cube
-	glBindVertexArray(aquariumVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, aquariumVBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, aquariumEBO);
-	int indexArraySize;
-	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &indexArraySize);
-	glDrawElements(GL_TRIANGLES, indexArraySize / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-	glBindVertexArray(0);
-}
-
 
 void renderGlassWindows(const Shader& shader)
 {
@@ -5088,3 +4994,101 @@ void renderWood()
 	glBindVertexArray(0);
 }
 
+void renderFirstSnake(const Shader& shader)
+{
+
+	//parrot
+	glm::mat4 model;
+	model = glm::mat4();
+	model = glm::translate(model, glm::vec3(7.0f, 5.4f, -45.7f));
+	model = glm::scale(model, glm::vec3(0.5f));
+
+
+
+
+	shader.SetMat4("model", model);
+	renderFirstSnake();
+}
+
+unsigned int indicesFirstSnake[720000];
+objl::Vertex verFirstSnake[820000];
+GLuint  firstSnakeVAO, firstSnakeVBO, firstSnakeEBO;
+
+void renderFirstSnake()
+{
+	// initialize (if necessary)
+	if (firstSnakeVAO == 0)
+	{
+
+		std::vector<float> verticesC;
+		std::vector<float> indicesC;
+
+
+
+		Loader.LoadFile("..\\Museum\\Animals\\FirstSnake\\Snake.obj");
+
+		;		objl::Mesh curMesh = Loader.LoadedMeshes[0];
+		int size = curMesh.Vertices.size();
+		objl::Vertex v;
+		for (int j = 0; j < curMesh.Vertices.size(); j++)
+		{
+			v.Position.X = (float)curMesh.Vertices[j].Position.X;
+			v.Position.Y = (float)curMesh.Vertices[j].Position.Y;
+			v.Position.Z = (float)curMesh.Vertices[j].Position.Z;
+			v.Normal.X = (float)curMesh.Vertices[j].Normal.X;
+			v.Normal.Y = (float)curMesh.Vertices[j].Normal.Y;
+			v.Normal.Z = (float)curMesh.Vertices[j].Normal.Z;
+			v.TextureCoordinate.X = (float)curMesh.Vertices[j].TextureCoordinate.X;
+			v.TextureCoordinate.Y = (float)curMesh.Vertices[j].TextureCoordinate.Y;
+
+
+			verFirstSnake[j] = v;
+		}
+		for (int j = 0; j < verticesC.size(); j++)
+		{
+			vertices[j] = verticesC.at(j);
+		}
+
+		for (int j = 0; j < curMesh.Indices.size(); j++)
+		{
+
+			indicesC.push_back((float)curMesh.Indices[j]);
+
+		}
+		for (int j = 0; j < curMesh.Indices.size(); j++)
+		{
+			indicesFirstSnake[j] = indicesC.at(j);
+		}
+
+		glGenVertexArrays(1, &firstSnakeVAO);
+		glGenBuffers(1, &firstSnakeVBO);
+		glGenBuffers(1, &firstSnakeEBO);
+		// fill buffer
+		glBindBuffer(GL_ARRAY_BUFFER, firstSnakeVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(verFirstSnake), verFirstSnake, GL_DYNAMIC_DRAW);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, firstSnakeEBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicesFirstSnake), &indicesFirstSnake, GL_DYNAMIC_DRAW);
+		// link vertex attributes
+		glBindVertexArray(firstSnakeVAO);
+		glEnableVertexAttribArray(0);
+
+
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
+	// render Cube
+	glBindVertexArray(firstSnakeVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, firstSnakeVBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, firstSnakeEBO);
+	int indexArraySize;
+	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &indexArraySize);
+	glDrawElements(GL_TRIANGLES, indexArraySize / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+}
