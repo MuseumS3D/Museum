@@ -568,6 +568,13 @@ void renderPigeon();
 
 void renderGrassGroundRoom3(const Shader& shader);
 
+void renderAquarium(const Shader& shader);
+void renderAquarium();
+
+void renderGlassWindows(const Shader& shader);
+void renderGlassWindows();
+
+
 //DECORATIONS
 
 void renderSavannahTree(const Shader& shader);
@@ -696,6 +703,8 @@ int main(int argc, char** argv)
 	unsigned int secondDuckTexture = CreateTexture(strExePath + "\\Museum\\Animals\\SecondDuck\\12252_Bird_v1_diff.jpg");
 	unsigned int redBirdTexture = CreateTexture(strExePath + "\\Museum\\Animals\\small_red_bird\\12212_Bird_diffuse.jpg");
 	unsigned int pigeonTexture = CreateTexture(strExePath + "\\Museum\\Animals\\pigen\\59.png");
+	//unsigned int aquariumTexture = CreateTexture(strExePath + "\\Museum\\Animals\\Aquário_FBX\\transparent_texture.jpg");
+	unsigned int glassTexture = CreateTexture(strExePath + "\\Museum\\Glass\\glass2.jpg");
 
 
 
@@ -961,6 +970,8 @@ int main(int argc, char** argv)
 
 		renderBirdTree(shadowMappingDepthShader);
 		renderGrassGroundRoom3(shadowMappingDepthShader);
+		renderAquarium(shadowMappingDepthShader);
+
 
 		glCullFace(GL_BACK);
 
@@ -1185,7 +1196,6 @@ int main(int argc, char** argv)
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 		glDisable(GL_CULL_FACE);
 		renderHeron(shadowMappingShader);
-		std::cout << heronTexture;
 
 		//glActiveTexture(GL_TEXTURE0);
 		//glBindTexture(GL_TEXTURE_2D, babyDuckTexture);
@@ -1222,6 +1232,25 @@ int main(int argc, char** argv)
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 		glDisable(GL_CULL_FACE);
 		renderGrassGroundRoom3(shadowMappingShader);
+
+		/*	glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, aquariumTexture);
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, depthMap);
+			glDisable(GL_CULL_FACE);
+			renderAquarium(shadowMappingShader);*/
+
+			//transparent object
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ONE);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, glassTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderGlassWindows(shadowMappingShader);
+		glDisable(GL_BLEND);
+		//end
 
 
 		// Desenarea primului obiect
@@ -1489,12 +1518,12 @@ void renderFloor()
 
 // renderCube() renders a 1x1 3D cube in NDC.
 // -------------------------------------------------
-unsigned int cubeVAO = 0;
-unsigned int cubeVBO = 0;
+unsigned int wallVAO = 0;
+unsigned int wallVBO = 0;
 void renderParallelepipedFromDoor()
 {
 	// initialize (if necessary)
-	if (cubeVAO == 0)
+	if (wallVAO == 0)
 	{
 		float skew = 1.8f;
 		float height = 1.0f;
@@ -1544,13 +1573,13 @@ void renderParallelepipedFromDoor()
 			-1.0f,  1.0f + height, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
 			-1.0f,  1.0f + height,  1.0f - skew,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left        
 		};
-		glGenVertexArrays(1, &cubeVAO);
-		glGenBuffers(1, &cubeVBO);
+		glGenVertexArrays(1, &wallVAO);
+		glGenBuffers(1, &wallVBO);
 		// fill buffer
-		glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+		glBindBuffer(GL_ARRAY_BUFFER, wallVBO);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 		// link vertex attributes
-		glBindVertexArray(cubeVAO);
+		glBindVertexArray(wallVAO);
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(1);
@@ -1561,7 +1590,7 @@ void renderParallelepipedFromDoor()
 		glBindVertexArray(0);
 	}
 	// render Cube
-	glBindVertexArray(cubeVAO);
+	glBindVertexArray(wallVAO);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
 }
@@ -4678,4 +4707,210 @@ void renderGrassGroundRoom3(const Shader& shader)
 
 }
 
+void renderAquarium(const Shader& shader)
+{
 
+	//parrot
+	glm::mat4 model;
+	model = glm::mat4();
+	model = glm::translate(model, glm::vec3(19.5f, 0.0f, -26.5f));
+	model = glm::scale(model, glm::vec3(0.5f));
+
+
+
+
+	shader.SetMat4("model", model);
+	renderAquarium();
+}
+
+unsigned int indicesAquarium[720000];
+objl::Vertex verAquarium[820000];
+GLuint  aquariumVAO, aquariumVBO, aquariumEBO;
+
+void renderAquarium()
+{
+	// initialize (if necessary)
+	if (aquariumVAO == 0)
+	{
+
+		std::vector<float> verticesC;
+		std::vector<float> indicesC;
+
+
+
+		Loader.LoadFile("..\\Museum\\Animals\\Aquário_FBX\\Aquário_FBX.obj");
+
+		;		objl::Mesh curMesh = Loader.LoadedMeshes[0];
+		int size = curMesh.Vertices.size();
+		objl::Vertex v;
+		for (int j = 0; j < curMesh.Vertices.size(); j++)
+		{
+			v.Position.X = (float)curMesh.Vertices[j].Position.X;
+			v.Position.Y = (float)curMesh.Vertices[j].Position.Y;
+			v.Position.Z = (float)curMesh.Vertices[j].Position.Z;
+			v.Normal.X = (float)curMesh.Vertices[j].Normal.X;
+			v.Normal.Y = (float)curMesh.Vertices[j].Normal.Y;
+			v.Normal.Z = (float)curMesh.Vertices[j].Normal.Z;
+			v.TextureCoordinate.X = (float)curMesh.Vertices[j].TextureCoordinate.X;
+			v.TextureCoordinate.Y = (float)curMesh.Vertices[j].TextureCoordinate.Y;
+
+
+			verAquarium[j] = v;
+		}
+		for (int j = 0; j < verticesC.size(); j++)
+		{
+			vertices[j] = verticesC.at(j);
+		}
+
+		for (int j = 0; j < curMesh.Indices.size(); j++)
+		{
+
+			indicesC.push_back((float)curMesh.Indices[j]);
+
+		}
+		for (int j = 0; j < curMesh.Indices.size(); j++)
+		{
+			indicesAquarium[j] = indicesC.at(j);
+		}
+
+		glGenVertexArrays(1, &aquariumVAO);
+		glGenBuffers(1, &aquariumVBO);
+		glGenBuffers(1, &aquariumEBO);
+		// fill buffer
+		glBindBuffer(GL_ARRAY_BUFFER, aquariumVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(verAquarium), verAquarium, GL_DYNAMIC_DRAW);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, aquariumEBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicesAquarium), &indicesAquarium, GL_DYNAMIC_DRAW);
+		// link vertex attributes
+		glBindVertexArray(aquariumVAO);
+		glEnableVertexAttribArray(0);
+
+
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
+	// render Cube
+	glBindVertexArray(aquariumVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, aquariumVBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, aquariumEBO);
+	int indexArraySize;
+	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &indexArraySize);
+	glDrawElements(GL_TRIANGLES, indexArraySize / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+}
+
+
+void renderGlassWindows(const Shader& shader)
+{
+	//window 
+	glm::mat4 model;
+	model = glm::mat4();
+	model = glm::translate(model, glm::vec3(26.f, 0.0f, -45.7f));
+	model = glm::scale(model, glm::vec3(2.3f));
+	shader.SetMat4("model", model);
+	renderGlassWindows();
+
+
+	//window 
+	model = glm::mat4();
+	model = glm::translate(model, glm::vec3(13.f, 0.0f, -45.7f));
+	model = glm::scale(model, glm::vec3(2.3f));
+	shader.SetMat4("model", model);
+	renderGlassWindows();
+
+	//window 
+	model = glm::mat4();
+	model = glm::translate(model, glm::vec3(6.f, 0.0f, -45.7f));
+	model = glm::scale(model, glm::vec3(2.3f));
+	shader.SetMat4("model", model);
+	renderGlassWindows();
+
+	//window 
+	model = glm::mat4();
+	model = glm::translate(model, glm::vec3(19.5f, 0.0f, -45.7f));
+	model = glm::scale(model, glm::vec3(2.3f));
+	shader.SetMat4("model", model);
+	renderGlassWindows();
+
+}
+
+unsigned int glassVAO = 0;
+unsigned int glassVBO = 0;
+void renderGlassWindows()
+{
+	float height = 3.5f;
+	// initialize (if necessary)
+	if (glassVAO == 0)
+	{
+		float vertices[] = {
+			// back face
+			-1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
+			1.0f,  1.0f + height, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
+			1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f, // bottom-right         
+			1.0f,  1.0f + height, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
+			-1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
+			-1.0f,  1.0f + height, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, // top-left
+			// front face
+			-1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
+			1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, // bottom-right
+			1.0f,  1.0f + height,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+			1.0f,  1.0f + height,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+			-1.0f,  1.0f + height,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // top-left
+			-1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
+			// left face
+			-1.0f,  1.0f + height,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+			-1.0f,  1.0f + height, -1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-left
+			-1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
+			-1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
+			-1.0f, -1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+			-1.0f,  1.0f + height,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+			// right face
+			1.0f,  1.0f + height,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+			1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
+			1.0f,  1.0f + height, -1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-right         
+			1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
+			1.0f,  1.0f + height,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+			1.0f, -1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left     
+			// bottom face
+			-1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+			1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, // top-left
+			1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
+			1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
+			-1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+			-1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+			// top face
+			-1.0f,  1.0f + height, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
+			1.0f,  1.0f + height , 1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+			1.0f,  1.0f + height, -1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, // top-right     
+			1.0f,  1.0f + height,  1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+			-1.0f,  1.0f + height, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
+			-1.0f,  1.0f + height,  1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left        
+		};
+		glGenVertexArrays(1, &glassVAO);
+		glGenBuffers(1, &glassVBO);
+		// fill buffer
+		glBindBuffer(GL_ARRAY_BUFFER, glassVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+		// link vertex attributes
+		glBindVertexArray(glassVAO);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
+	// render Cube
+	glBindVertexArray(glassVAO);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+}
