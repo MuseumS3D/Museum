@@ -217,10 +217,12 @@ private:
 		// Lista peretilor
 		std::vector<Wall> walls = {
 			//x,y,z,latime,adancime,inaltime
+			{-40.0f, 14.5f, -40.0f, 180.0f, 80.0f, 1.0f},//tavan
 			//camera 1
 			{-30.38f,0.0f, 20.5f, 30.38f, 20.8f,15.0f}, // Perete 1(spate)
 			{-24.28f,0.0f, -15.0f, 5.38f, 50.8f,15.0f},//perete 2(lateral)
-			{-10.28f,0.0f, -15.0f, 5.38f, 50.8f,15.0f},//perete 3(lateral)
+			{-11.58f,0.0f, -15.0f, 5.38f, 50.8f,15.0f},//perete 3(lateral)
+			{-30.38f,9.5f, -15.5f, 30.38f, 2.38f,15.0f}, // Perete 1(fat usa)
 			//{-40.0f, 14.5f, -40.0f, 80.0f, 80.0f, 1.0f},//tavan
 
 			//camera 2
@@ -239,6 +241,9 @@ private:
 
 			//triceratop
 			{-13.0f,0.0f, -26.3f, 18.38f, 14.8f,8.0f},//perete 2(lateral)
+			//perete 3 (lateral)
+			{-1.0f,0.0f, -62.5f, 5.38f, 25.8f,15.0f},//camera 2 si 3
+			{-1.0f,9.5f, -55.5f, 2.38f, 25.8f,15.0f},//camera 2 si 3 cea de la usa
 
 
 			// camera 3
@@ -712,7 +717,7 @@ int main(int argc, char** argv)
 
 	// load textures
 	// -------------
-	unsigned int floorTexture = CreateTexture(strExePath + "\\Museum\\Walls\\wall.jpg");
+	unsigned int floorTexture = CreateTexture(strExePath + "\\Museum\\Walls\\floor3.jpg");
 	unsigned int wallTexture = CreateTexture(strExePath + "\\Museum\\Walls\\wall.jpg");
 
 	unsigned int giraffeTexture = CreateTexture(strExePath + "\\Museum\\Animals\\Giraffe\\giraffe.jpg");
@@ -1336,6 +1341,56 @@ renderPigeon(shadowMappingDepthShader);
 		//end
 
 
+		// Desenarea primului obiect
+		lightingShader.Use();
+		lightingShader.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
+		lightingShader.SetVec3("lightPos", lightPos1);
+		lightingShader.SetMat4("projection", pCamera->GetProjectionMatrix());
+		lightingShader.SetMat4("view", pCamera->GetViewMatrix());
+		glm::mat4 model1 = glm::translate(glm::mat4(1.0), glm::vec3(-7.5f, 0.0f, 15.5f));
+		model1 = glm::scale(model1, glm::vec3(3.0f));
+		lightingShader.SetMat4("model", model1);
+
+		// Desenarea obiectului principal
+		/*glBindVertexArray(cubeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);*/
+
+		// Desenarea obiectului pentru lumina
+		lampShader.Use();
+		lampShader.SetMat4("projection", pCamera->GetProjectionMatrix());
+		lampShader.SetMat4("view", pCamera->GetViewMatrix());
+		glm::mat4 lampModel1 = glm::translate(glm::mat4(1.0), lightPos1);
+		lampModel1 = glm::scale(lampModel1, glm::vec3(0.2f));
+		lampShader.SetMat4("model", lampModel1);
+
+		glBindVertexArray(lightVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		// Setarea ?i desenarea celui de-al doilea obiect
+		lightingShader.Use();
+		lightingShader.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
+		lightingShader.SetVec3("lightPos", lightPos2);
+		lightingShader.SetMat4("projection", pCamera->GetProjectionMatrix());
+		lightingShader.SetMat4("view", pCamera->GetViewMatrix());
+		glm::mat4 model2 = glm::translate(glm::mat4(1.0), glm::vec3(-7.5f, 0.0f, -11.5f));
+		model2 = glm::scale(model2, glm::vec3(3.0f));
+		lightingShader.SetMat4("model", model2);
+
+		//// Desenarea obiectului principal
+		//glBindVertexArray(cubeVAO);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		// Desenarea obiectului pentru lumina
+		lampShader.Use();
+		lampShader.SetMat4("projection", pCamera->GetProjectionMatrix());
+		lampShader.SetMat4("view", pCamera->GetViewMatrix());
+		glm::mat4 lampModel2 = glm::translate(glm::mat4(1.0), lightPos2);
+		lampModel2 = glm::scale(lampModel2, glm::vec3(0.2f));
+		lampShader.SetMat4("model", lampModel2);
+
+		glBindVertexArray(lightVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
 
 		// Desenarea primului obiect
 		lightingShader.Use();
@@ -1886,6 +1941,7 @@ void renderCeiling()
 	if (cubeVAO4 == 0)
 	{
 		float skew = 1.8f;
+		float skew1 = 2.0f;
 		float ceilingLength = 4.0f;
 		float ceilingWidth = 4.8f;
 		float ceilingWidthBack = 2.0f;
@@ -1924,12 +1980,12 @@ void renderCeiling()
 			1.0f,  1.0f - skew,  1.0f + ceilingWidth,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
 			1.0f, -1.0f,  1.0f + ceilingWidth,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left     
 			// bottom face
-			-1.0f - ceilingLength, -1.0f, -1.0f + ceilingWidth + skew,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
-			1.0f, -1.0f, -1.0f + ceilingWidth + skew,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, // top-left
+			-1.0f - ceilingLength, -1.0f, -1.0f + ceilingWidth + skew1,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+			1.0f, -1.0f, -1.0f + ceilingWidth + skew1,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, // top-left
 			1.0f, -1.0f,  1.0f - ceilingWidthBack,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
 			1.0f, -1.0f,  1.0f - ceilingWidthBack,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
 			-1.0f - ceilingLength, -1.0f,  1.0f - ceilingWidthBack,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // bottom-right
-			-1.0f - ceilingLength, -1.0f, -1.0f + ceilingWidth + skew,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+			-1.0f - ceilingLength, -1.0f, -1.0f + ceilingWidth + skew1,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
 			// top face
 			-1.0f - ceilingLength,  1.0f - skew, -1.0f + ceilingWidth + skew + 0.2f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
 			1.0f,  1.0f - skew , 1.0f - ceilingWidthBack ,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
