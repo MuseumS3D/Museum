@@ -601,6 +601,9 @@ void renderWood();
 void renderFirstSnake(const Shader& shader);
 void renderFirstSnake();
 
+void renderSecondSnake(const Shader& shader);
+void renderSecondSnake();
+
 void renderGlassWindows(const Shader& shader);
 void renderGlassWindows();
 
@@ -737,6 +740,7 @@ int main(int argc, char** argv)
 	unsigned int glassTexture = CreateTexture(strExePath + "\\Museum\\Glass\\glass.jpg");
 	unsigned int woodTexture = CreateTexture(strExePath + "\\Museum\\Wood\\model.jpg");
 	unsigned int firstSnakeTexture = CreateTexture(strExePath + "\\Museum\\Animals\\FirstSnake\\1649403578571_1.png");
+	unsigned int secondSnakeTexture = CreateTexture(strExePath + "\\Museum\\Animals\\SecondSnake\\metalnessMap1.png");
 
 
 
@@ -1001,6 +1005,8 @@ int main(int argc, char** argv)
 		renderBirdTree(shadowMappingDepthShader);
 		renderWood(shadowMappingDepthShader);
 		renderFirstSnake(shadowMappingDepthShader);
+		renderSecondSnake(shadowMappingDepthShader);
+
 		renderGrassGroundRoom3(shadowMappingDepthShader);
 
 		glCullFace(GL_BACK);
@@ -1277,14 +1283,21 @@ int main(int argc, char** argv)
 		glDisable(GL_CULL_FACE);
 		renderWood(shadowMappingShader);
 
-			glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, firstSnakeTexture);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, depthMap);
-	glDisable(GL_CULL_FACE);
-	renderFirstSnake(shadowMappingShader);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, firstSnakeTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderFirstSnake(shadowMappingShader);
 
-			//transparent object
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, secondSnakeTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		renderSecondSnake(shadowMappingShader);
+
+		//transparent object
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE, GL_ONE);
 		glActiveTexture(GL_TEXTURE0);
@@ -3399,8 +3412,8 @@ float aux = 0.008;
 void renderRabbit(const Shader& shader)
 {
 	//cheetah
-	if(newY>=3.0f)
-		aux=-0.008f;
+	if (newY >= 3.0f)
+		aux = -0.008f;
 	if (newY <= 0.0f)
 		aux = 0.008f;
 	newY += aux;
@@ -4864,7 +4877,7 @@ void renderWood(const Shader& shader)
 	glm::mat4 model;
 	model = glm::mat4();
 	model = glm::translate(model, glm::vec3(6.f, 2.8f, -45.7f));
-	model = glm::scale(model, glm::vec3(2.f));	
+	model = glm::scale(model, glm::vec3(2.f));
 	model = glm::rotate(model, glm::radians(90.f), glm::vec3(0.0f, 0.0f, 1.0f));
 	model = glm::rotate(model, glm::radians(180.f), glm::vec3(0.0f, -1.0f, 0.0f));
 	model = glm::rotate(model, glm::radians(180.f), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -4874,7 +4887,7 @@ void renderWood(const Shader& shader)
 	shader.SetMat4("model", model);
 	renderWood();
 	//wood stander
-	
+
 	model = glm::mat4();
 	model = glm::translate(model, glm::vec3(19.5f, 2.7f, -45.7f));
 	model = glm::scale(model, glm::vec3(2.f));
@@ -5086,6 +5099,106 @@ void renderFirstSnake()
 	glBindVertexArray(firstSnakeVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, firstSnakeVBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, firstSnakeEBO);
+	int indexArraySize;
+	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &indexArraySize);
+	glDrawElements(GL_TRIANGLES, indexArraySize / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+}
+
+
+void renderSecondSnake(const Shader& shader)
+{
+
+	//parrot
+	glm::mat4 model;
+	model = glm::mat4();
+	model = glm::translate(model, glm::vec3(20.1f, 2.8f, -45.7f));
+	model = glm::scale(model, glm::vec3(25.f));
+	model = glm::rotate(model, glm::radians(60.f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+
+
+	shader.SetMat4("model", model);
+	renderSecondSnake();
+}
+
+unsigned int indicesSecondSnake[720000];
+objl::Vertex verSecondSnake[820000];
+GLuint  secondSnakeVAO, secondSnakeVBO, secondSnakeEBO;
+
+void renderSecondSnake()
+{
+	// initialize (if necessary)
+	if (secondSnakeVAO == 0)
+	{
+
+		std::vector<float> verticesC;
+		std::vector<float> indicesC;
+
+
+
+		Loader.LoadFile("..\\Museum\\Animals\\SecondSnake\\titanoboa.obj");
+
+		;		objl::Mesh curMesh = Loader.LoadedMeshes[0];
+		int size = curMesh.Vertices.size();
+		objl::Vertex v;
+		for (int j = 0; j < curMesh.Vertices.size(); j++)
+		{
+			v.Position.X = (float)curMesh.Vertices[j].Position.X;
+			v.Position.Y = (float)curMesh.Vertices[j].Position.Y;
+			v.Position.Z = (float)curMesh.Vertices[j].Position.Z;
+			v.Normal.X = (float)curMesh.Vertices[j].Normal.X;
+			v.Normal.Y = (float)curMesh.Vertices[j].Normal.Y;
+			v.Normal.Z = (float)curMesh.Vertices[j].Normal.Z;
+			v.TextureCoordinate.X = (float)curMesh.Vertices[j].TextureCoordinate.X;
+			v.TextureCoordinate.Y = (float)curMesh.Vertices[j].TextureCoordinate.Y;
+
+
+			verSecondSnake[j] = v;
+		}
+		for (int j = 0; j < verticesC.size(); j++)
+		{
+			vertices[j] = verticesC.at(j);
+		}
+
+		for (int j = 0; j < curMesh.Indices.size(); j++)
+		{
+
+			indicesC.push_back((float)curMesh.Indices[j]);
+
+		}
+		for (int j = 0; j < curMesh.Indices.size(); j++)
+		{
+			indicesSecondSnake[j] = indicesC.at(j);
+		}
+
+		glGenVertexArrays(1, &secondSnakeVAO);
+		glGenBuffers(1, &secondSnakeVBO);
+		glGenBuffers(1, &secondSnakeEBO);
+		// fill buffer
+		glBindBuffer(GL_ARRAY_BUFFER, secondSnakeVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(verSecondSnake), verSecondSnake, GL_DYNAMIC_DRAW);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, secondSnakeEBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicesSecondSnake), &indicesSecondSnake, GL_DYNAMIC_DRAW);
+		// link vertex attributes
+		glBindVertexArray(secondSnakeVAO);
+		glEnableVertexAttribArray(0);
+
+
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
+	// render Cube
+	glBindVertexArray(secondSnakeVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, secondSnakeVBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, secondSnakeEBO);
 	int indexArraySize;
 	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &indexArraySize);
 	glDrawElements(GL_TRIANGLES, indexArraySize / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
