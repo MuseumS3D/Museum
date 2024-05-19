@@ -910,7 +910,10 @@ int main(int argc, char** argv)
 
 	glm::vec3 lightPos1(-13.5f, 14.0f, 12.0f);
 	glm::vec3 lightPos2(-15.5f, 14.0f, 12.0f);
-	glm::vec3 lightPos3(-15.5f, 14.0f, 12.0f); // sau orice alt? pozi?ie dore?ti
+	glm::vec3 lightPos3(-13.5f, 14.0f, -20.0f); 
+	glm::vec3 lightPos4(-15.5f, 14.0f, -20.0f);
+	glm::vec3 lightPos5(26.6f, 14.0f, -30.0f); 
+	glm::vec3 lightPos6(26.6f, 14.0f, -32.0f); 
 
 
 
@@ -1337,52 +1340,95 @@ renderPigeon(shadowMappingDepthShader);
 		// Desenarea primului obiect
 		lightingShader.Use();
 		lightingShader.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
-		lightingShader.SetVec3("lightPos", lightPos1);
+		lightingShader.SetVec3("lightPos", lightPos3);
 		lightingShader.SetMat4("projection", pCamera->GetProjectionMatrix());
 		lightingShader.SetMat4("view", pCamera->GetViewMatrix());
-		glm::mat4 model1 = glm::translate(glm::mat4(1.0), glm::vec3(-7.5f, 0.0f, 15.5f));
-		model1 = glm::scale(model1, glm::vec3(3.0f));
-		lightingShader.SetMat4("model", model1);
+		glm::mat4 model3 = glm::translate(glm::mat4(1.0), glm::vec3(-7.5f, 0.0f, 15.5f));
+		model3 = glm::scale(model3, glm::vec3(3.0f));
+		lightingShader.SetMat4("model", model3);
 
-		// Desenarea obiectului principal
-		/*glBindVertexArray(cubeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);*/
-
-		// Desenarea obiectului pentru lumina
 		lampShader.Use();
 		lampShader.SetMat4("projection", pCamera->GetProjectionMatrix());
 		lampShader.SetMat4("view", pCamera->GetViewMatrix());
-		glm::mat4 lampModel1 = glm::translate(glm::mat4(1.0), lightPos1);
-		lampModel1 = glm::scale(lampModel1, glm::vec3(0.2f));
-		lampShader.SetMat4("model", lampModel1);
+		glm::mat4 lampModel3 = glm::translate(glm::mat4(1.0), lightPos3);
+		lampModel3 = glm::scale(lampModel3, glm::vec3(0.2f));
+		lampShader.SetMat4("model", lampModel3);
+
 
 		glBindVertexArray(lightVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
-		// Setarea ?i desenarea celui de-al doilea obiect
+		// Desenarea primului obiect
 		lightingShader.Use();
 		lightingShader.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
-		lightingShader.SetVec3("lightPos", lightPos2);
+		lightingShader.SetVec3("lightPos", lightPos4);
 		lightingShader.SetMat4("projection", pCamera->GetProjectionMatrix());
 		lightingShader.SetMat4("view", pCamera->GetViewMatrix());
-		glm::mat4 model2 = glm::translate(glm::mat4(1.0), glm::vec3(-7.5f, 0.0f, -11.5f));
-		model2 = glm::scale(model2, glm::vec3(3.0f));
-		lightingShader.SetMat4("model", model2);
+		glm::mat4 model4 = glm::translate(glm::mat4(1.0), glm::vec3(-7.5f, 0.0f, 15.5f));
+		model4 = glm::scale(model4, glm::vec3(3.0f));
+		lightingShader.SetMat4("model", model4);
 
-		//// Desenarea obiectului principal
-		//glBindVertexArray(cubeVAO);
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
-
-		// Desenarea obiectului pentru lumina
 		lampShader.Use();
 		lampShader.SetMat4("projection", pCamera->GetProjectionMatrix());
 		lampShader.SetMat4("view", pCamera->GetViewMatrix());
-		glm::mat4 lampModel2 = glm::translate(glm::mat4(1.0), lightPos2);
-		lampModel2 = glm::scale(lampModel2, glm::vec3(0.2f));
-		lampShader.SetMat4("model", lampModel2);
+		glm::mat4 lampModel4 = glm::translate(glm::mat4(1.0), lightPos4);
+		lampModel4 = glm::scale(lampModel4, glm::vec3(0.2f));
+		lampShader.SetMat4("model", lampModel4);
 
 		glBindVertexArray(lightVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+
+
+
+		// Desenarea primului obiect
+		lightingShader.Use();
+		lightingShader.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
+		lightingShader.SetVec3("lightPos", lightPos5);
+		lightingShader.SetMat4("projection", pCamera->GetProjectionMatrix());
+		lightingShader.SetMat4("view", pCamera->GetViewMatrix());
+		glm::mat4 model5 = glm::translate(glm::mat4(1.0), glm::vec3(-7.5f, 0.0f, 15.5f));
+		model5 = glm::scale(model5, glm::vec3(3.0f));
+		lightingShader.SetMat4("model", model5);
+
+		lampShader.Use();
+		lampShader.SetMat4("projection", pCamera->GetProjectionMatrix());
+		lampShader.SetMat4("view", pCamera->GetViewMatrix());
+		glm::mat4 lampModel5 = glm::translate(glm::mat4(1.0), lightPos5);
+		lampModel5 = glm::scale(lampModel5, glm::vec3(0.2f));
+		lampModel5 = glm::rotate(lampModel5, glm::radians(90.f), glm::vec3(0.0f, 1.0f, 0.0f));
+		lampShader.SetMat4("model", lampModel5);
+
+		glBindVertexArray(lightVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+
+
+		// Desenarea primului obiect
+		lightingShader.Use();
+		lightingShader.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
+		lightingShader.SetVec3("lightPos", lightPos6);
+		lightingShader.SetMat4("projection", pCamera->GetProjectionMatrix());
+		lightingShader.SetMat4("view", pCamera->GetViewMatrix());
+		glm::mat4 model6 = glm::translate(glm::mat4(1.0), glm::vec3(-7.5f, 0.0f, 15.5f));
+		model6 = glm::scale(model6, glm::vec3(3.0f));
+		lightingShader.SetMat4("model", model6);
+
+		lampShader.Use();
+		lampShader.SetMat4("projection", pCamera->GetProjectionMatrix());
+		lampShader.SetMat4("view", pCamera->GetViewMatrix());
+		glm::mat4 lampModel6 = glm::translate(glm::mat4(1.0), lightPos6);
+		lampModel6 = glm::scale(lampModel6, glm::vec3(0.2f));
+		lampModel6 = glm::rotate(lampModel6, glm::radians(90.f), glm::vec3(0.0f, 1.0f, 0.0f));
+		lampShader.SetMat4("model", lampModel6);
+
+
+
+
+
+		glBindVertexArray(lightVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
 
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
